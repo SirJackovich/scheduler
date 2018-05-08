@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141" fx:controller="scheduler.view_controller.CustomerController">
+   <children>
+      <BorderPane layoutY="-1.0" prefHeight="400.0" prefWidth="600.0">
+         <bottom>
+            <AnchorPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button fx:id="addButton" layoutX="14.0" layoutY="12.0" mnemonicParsing="false" onAction="#handleAddButton" text="Add" />
+                  <Button fx:id="modifyButton" layoutX="527.0" layoutY="12.0" mnemonicParsing="false" onAction="#handleModifyButton" text="Modify" />
+               </children>
+            </AnchorPane>
+         </bottom>
+         <center>
+            <TableView fx:id="tableView" prefHeight="350.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+              <columns>
+                <TableColumn fx:id="IDTableColumn" prefWidth="75.0" text="ID" />
+                <TableColumn fx:id="nameTableColumn" prefWidth="75.0" text="Name" />
+                  <TableColumn fx:id="addressTableColumn" prefWidth="75.0" text="Address" />
+              </columns>
+            </TableView>
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

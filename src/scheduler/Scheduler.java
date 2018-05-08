@@ -4,14 +4,13 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import scheduler.view_controller.LoginController;
+import scheduler.view_controller.CalendarController;
 
 public class Scheduler extends Application {
   private Stage primaryStage;
-  private AnchorPane loginLayout;
+  private BorderPane calendarLayout;
   
   public Scheduler(){
     // setup databse connection stuff
@@ -21,22 +20,22 @@ public class Scheduler extends Application {
   public void start(Stage primaryStage) throws Exception {
     this.primaryStage = primaryStage;
     this.primaryStage.setTitle("Scheduler");
-    showLogin();
+    showCalendar();
   }
   
-  public void showLogin() throws IOException {
-    // Load login layout from fxml file
+  public void showCalendar() throws IOException {
+    // Load calendar layout from fxml file
     FXMLLoader loader = new FXMLLoader();
-    loader.setLocation(Scheduler.class.getResource("view_controller/Login.fxml"));
-    loginLayout = (AnchorPane) loader.load();
+    loader.setLocation(Scheduler.class.getResource("view_controller/Calendar.fxml"));
+    calendarLayout = (BorderPane) loader.load();
 
     // Give the controller access to the main app.
-    LoginController loginController = loader.getController();
-    loginController.setApp(this);
-    loginController.setPrimaryStage(primaryStage);
+    CalendarController calendarController = loader.getController();
+    calendarController.setApp(this);
+    calendarController.setPrimaryStage(primaryStage);
 
-    // Show the scene containing the login layout
-    Scene scene = new Scene(loginLayout);
+    // Show the scene containing the calendar layout
+    Scene scene = new Scene(calendarLayout);
     primaryStage.setScene(scene);
     primaryStage.show();
   }

@@ -11,7 +11,7 @@
    <top>
       <AnchorPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <ComboBox fx:id="viewComboBox" layoutX="436.0" layoutY="12.0" onAction="#handleComboBox" prefWidth="150.0" />
+            <ComboBox fx:id="viewComboBox" layoutX="536.0" layoutY="12.0" onAction="#handleComboBox" AnchorPane.rightAnchor="14.0" />
          </children>
       </AnchorPane>
    </top>
@@ -28,7 +28,7 @@
    <bottom>
       <AnchorPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="customerButton" layoutX="14.0" layoutY="12.0" mnemonicParsing="false" text="Customer" />
+            <Button fx:id="customerButton" layoutX="14.0" layoutY="12.0" mnemonicParsing="false" onAction="#handleCustomerButton" text="Customer" />
             <Button fx:id="appointmentButton" layoutX="252.0" layoutY="12.0" mnemonicParsing="false" text="Appointment" />
             <Button fx:id="reportButton" layoutX="519.0" layoutY="12.0" mnemonicParsing="false" text="Report" />
          </children>
