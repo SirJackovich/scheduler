@@ -1,44 +1,48 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package scheduler;
 
+import java.io.IOException;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import scheduler.view_controller.LoginController;
 
-/**
- *
- * @author sirjackovich
- */
 public class Scheduler extends Application {
+  private Stage primaryStage;
+  private AnchorPane loginLayout;
+  
+  public Scheduler(){
+    // setup databse connection stuff
+  }
   
   @Override
-  public void start(Stage primaryStage) {
-    Button btn = new Button();
-    btn.setText("Say 'Hello World'");
-    btn.setOnAction(new EventHandler<ActionEvent>() {
-      
-      @Override
-      public void handle(ActionEvent event) {
-        System.out.println("Hello World!");
-      }
-    });
-    
-    StackPane root = new StackPane();
-    root.getChildren().add(btn);
-    
-    Scene scene = new Scene(root, 300, 250);
-    
-    primaryStage.setTitle("Hello World!");
+  public void start(Stage primaryStage) throws Exception {
+    this.primaryStage = primaryStage;
+    this.primaryStage.setTitle("Scheduler");
+    showLogin();
+  }
+  
+  public void showLogin() throws IOException {
+    // Load login layout from fxml file
+    FXMLLoader loader = new FXMLLoader();
+    loader.setLocation(Scheduler.class.getResource("view_controller/Login.fxml"));
+    loginLayout = (AnchorPane) loader.load();
+
+    // Give the controller access to the main app.
+    LoginController loginController = loader.getController();
+    loginController.setApp(this);
+    loginController.setPrimaryStage(primaryStage);
+
+    // Show the scene containing the login layout
+    Scene scene = new Scene(loginLayout);
     primaryStage.setScene(scene);
     primaryStage.show();
+  }
+  
+  public Stage getPrimaryStage() {
+    return primaryStage;
   }
 
   /**
