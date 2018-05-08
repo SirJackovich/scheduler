@@ -36,13 +36,13 @@ public class CustomerController {
   private TableColumn<Customer, String> addressTableColumn;
 
   @FXML
-  void handleAddButton() {
-
+  void handleAddButton() throws IOException{
+    ModifyCustomerController.showDialog(stage, "Add Customer");
   }
 
   @FXML
-  void handleModifyButton() {
-
+  void handleModifyButton() throws IOException{
+    ModifyCustomerController.showDialog(stage, "Modify Customer");
   }
   
   public void setStage(Stage stage) {

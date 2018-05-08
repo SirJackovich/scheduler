@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import scheduler.view_controller.CalendarController;
 
 public class Scheduler extends Application {
-  private Stage primaryStage;
+  private Stage stage;
   private BorderPane calendarLayout;
   
   public Scheduler(){
@@ -17,9 +17,9 @@ public class Scheduler extends Application {
   }
   
   @Override
-  public void start(Stage primaryStage) throws Exception {
-    this.primaryStage = primaryStage;
-    this.primaryStage.setTitle("Scheduler");
+  public void start(Stage stage) throws Exception {
+    this.stage = stage;
+    this.stage.setTitle("Scheduler");
     showCalendar();
   }
   
@@ -32,16 +32,16 @@ public class Scheduler extends Application {
     // Give the controller access to the main app.
     CalendarController calendarController = loader.getController();
     calendarController.setApp(this);
-    calendarController.setPrimaryStage(primaryStage);
+    calendarController.setStage(stage);
 
     // Show the scene containing the calendar layout
     Scene scene = new Scene(calendarLayout);
-    primaryStage.setScene(scene);
-    primaryStage.show();
+    stage.setScene(scene);
+    stage.show();
   }
   
-  public Stage getPrimaryStage() {
-    return primaryStage;
+  public Stage getStage() {
+    return stage;
   }
 
   /**

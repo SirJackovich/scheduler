@@ -15,7 +15,7 @@ import scheduler.model.Customer;
 public class CalendarController {
   
   private Scheduler app;
-  private Stage primaryStage;
+  private Stage stage;
   
   @FXML
   private ComboBox viewComboBox;
@@ -52,24 +52,24 @@ public class CalendarController {
   
   @FXML
   private void handleCustomerButton() throws IOException{
-    CustomerController.showDialog(primaryStage);
+    CustomerController.showDialog(stage);
   }
   
   @FXML
   private void handleAddButton() throws IOException{
-    AppointmentController.showDialog(primaryStage, "Add Appointment");
+    AppointmentController.showDialog(stage, "Add Appointment");
   }
   
   @FXML
   private void handleModifyButton() throws IOException{
-    AppointmentController.showDialog(primaryStage, "Modify Appointment");
+    AppointmentController.showDialog(stage, "Modify Appointment");
   }
 
   @FXML
   private void initialize() throws IOException{
     viewComboBox.getItems().addAll("Week", "Month");
     viewComboBox.getSelectionModel().select(0);
-    if(LoginController.showDialog(primaryStage)){
+    if(LoginController.showDialog(stage)){
       System.out.println("I love my wife Sheralyn!!!");
     }else{
       System.out.println("I dont love my wife Sheralyn!!!");
@@ -81,8 +81,8 @@ public class CalendarController {
     this.app = app;
   }
   
-  public void setPrimaryStage(Stage primaryStage){
-    this.primaryStage = primaryStage;
+  public void setStage(Stage stage){
+    this.stage = stage;
   }
 }
 
