@@ -54,6 +54,16 @@ public class CalendarController {
   private void handleCustomerButton() throws IOException{
     CustomerController.showDialog(primaryStage);
   }
+  
+  @FXML
+  private void handleAddButton() throws IOException{
+    AppointmentController.showDialog(primaryStage, "Add Appointment");
+  }
+  
+  @FXML
+  private void handleModifyButton() throws IOException{
+    AppointmentController.showDialog(primaryStage, "Modify Appointment");
+  }
 
   @FXML
   private void initialize() throws IOException{
