@@ -1,7 +1,17 @@
 package scheduler.view_controller;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -16,6 +26,8 @@ public class CalendarController {
   
   private Scheduler app;
   private Stage stage;
+  private final ObservableList<Appointment> calendar = FXCollections.observableArrayList();
+  
   
   @FXML
   private ComboBox viewComboBox;
@@ -24,7 +36,7 @@ public class CalendarController {
   private TableView<Appointment> calendarTableView;
 
   @FXML
-  private TableColumn<Appointment, ?> timeTableColumn;
+  private TableColumn<Appointment, String> timeTableColumn;
 
   @FXML
   private TableColumn<Appointment, String> nameTableColumn;
@@ -33,7 +45,7 @@ public class CalendarController {
   private TableColumn<Appointment, String> typeTableColumn;
 
   @FXML
-  private TableColumn<Appointment, Customer> customerTableColumn;
+  private TableColumn<Appointment, Integer> customerTableColumn;
 
   @FXML
   private Button customerButton;
@@ -64,9 +76,39 @@ public class CalendarController {
   private void handleModifyButton() throws IOException{
     AppointmentController.showDialog(stage, "Modify Appointment");
   }
+  
+  public void setApp(Scheduler app) {
+    this.app = app;
+  }
+  
+  public void setStage(Stage stage){
+    this.stage = stage;
+  }
 
   @FXML
-  private void initialize() throws IOException{
+  private void initialize() throws IOException, ClassNotFoundException{
+    ResultSet resultSet = getAppointmentsFromDataBase();
+    
+    // Initialize the appointment table
+    timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
+    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+    typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
+    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
+    
+    try {
+      while (resultSet.next()) {
+        Integer appointmentID = resultSet.getInt("appointmentid");
+        String time = resultSet.getString("start");
+        String name = resultSet.getString("title");
+        String type = resultSet.getString("description");
+        Integer customerID = resultSet.getInt("customerId");
+        Appointment appointment = new Appointment(appointmentID, time, name, type, customerID);
+        calendar.add(appointment);
+      }
+      calendarTableView.setItems(calendar);
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
     viewComboBox.getItems().addAll("Week", "Month");
     viewComboBox.getSelectionModel().select(0);
     if(LoginController.showDialog(stage)){
@@ -77,13 +119,28 @@ public class CalendarController {
     }
   }
   
-  public void setApp(Scheduler app) {
-    this.app = app;
+  public ResultSet getAppointmentsFromDataBase() throws ClassNotFoundException {
+    String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
+    String username = "U04bLJ";
+    String password = "53688195100";
+    Connection connection;
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      Class.forName("com.mysql.jdbc.Driver");
+      connection = DriverManager.getConnection(URL, username, password);
+      try {
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId FROM appointment");
+      } catch (SQLException ex) {
+        ex.printStackTrace();
+      }
+    } catch (ClassNotFoundException | SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
   }
   
-  public void setStage(Stage stage){
-    this.stage = stage;
-  }
 }
 
 

@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="scheduler.view_controller.CalendarController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="622.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="scheduler.view_controller.CalendarController">
    <top>
       <AnchorPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
@@ -22,12 +22,12 @@
           <TableColumn fx:id="timeTableColumn" prefWidth="83.0" text="Time" />
           <TableColumn fx:id="nameTableColumn" prefWidth="252.0" text="Name" />
             <TableColumn fx:id="typeTableColumn" prefWidth="89.0" text="Type" />
-            <TableColumn fx:id="customerTableColumn" prefWidth="175.0" text="Customer" />
+            <TableColumn fx:id="customerTableColumn" prefWidth="197.0" text="Customer" />
         </columns>
       </TableView>
    </center>
    <bottom>
-      <AnchorPane prefHeight="50.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="52.0" prefWidth="625.0" BorderPane.alignment="CENTER">
          <children>
             <ButtonBar prefHeight="51.0" prefWidth="600.0">
               <buttons>

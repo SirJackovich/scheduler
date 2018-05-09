@@ -6,8 +6,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Appointment {
-  private static int ID = 0;
   private final IntegerProperty appointmentID;
+  private final StringProperty start;
   private final StringProperty name;
   private final StringProperty type;
   private final IntegerProperty customerID;
@@ -15,12 +15,14 @@ public class Appointment {
   /**
    * Constructor with some initial data.
    * 
+   * @param appointmentID
    * @param name
    * @param type
    * @param customerID
    */
-  public Appointment(String name, String type, Integer customerID) {
-      this.appointmentID = new SimpleIntegerProperty(generateID());
+  public Appointment(Integer appointmentID, String start, String name, String type, Integer customerID) {
+      this.appointmentID = new SimpleIntegerProperty(appointmentID);
+      this.start = new SimpleStringProperty(start);
       this.name = new SimpleStringProperty(name);
       this.type = new SimpleStringProperty(type);
       this.customerID = new SimpleIntegerProperty(customerID);
@@ -32,6 +34,18 @@ public class Appointment {
 
   public IntegerProperty IDProperty() {
     return appointmentID;
+  }
+  
+  public void setStart(String start){
+    this.start.set(start);
+  }
+
+  public String getStart(){
+    return this.start.get();
+  }
+    
+  public StringProperty startProperty() {
+    return start;
   }
 
   public void setName(String name){
@@ -68,9 +82,5 @@ public class Appointment {
     
   public IntegerProperty customerIDProperty() {
     return customerID;
-  }
-
-  private int generateID(){
-    return ID++;
   }
 }
