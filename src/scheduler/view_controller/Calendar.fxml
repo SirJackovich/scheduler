@@ -19,10 +19,10 @@
    <center>
       <TableView fx:id="calendarTableView" prefHeight="218.0" prefWidth="600.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="timeTableColumn" prefWidth="83.0" text="Time" />
-          <TableColumn fx:id="nameTableColumn" prefWidth="252.0" text="Name" />
-            <TableColumn fx:id="typeTableColumn" prefWidth="89.0" text="Type" />
-            <TableColumn fx:id="customerTableColumn" prefWidth="197.0" text="Customer" />
+          <TableColumn fx:id="timeTableColumn" prefWidth="199.0" text="Time" />
+          <TableColumn fx:id="nameTableColumn" prefWidth="136.0" text="Name" />
+            <TableColumn fx:id="typeTableColumn" prefWidth="181.0" text="Type" />
+            <TableColumn fx:id="customerTableColumn" prefWidth="88.0" text="Customer" />
         </columns>
       </TableView>
    </center>

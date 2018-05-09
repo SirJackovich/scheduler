@@ -6,24 +6,24 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Customer {
-  private static int ID = 0;
   private final IntegerProperty customerID;
   private final StringProperty name;
-  private final StringProperty address;
-  private final StringProperty phone;
+  private final IntegerProperty addressID;
+  // private final StringProperty phone;
 
   /**
    * Constructor with some initial data.
    * 
+   * @param customerID
    * @param name
-   * @param address
-   * @param phone
+   * @param addressID
+   * 
    */
-  public Customer(String name, String address, String phone) {
-      this.customerID = new SimpleIntegerProperty(generateID());
+  public Customer(Integer customerID, String name, Integer addressID) {
+      this.customerID = new SimpleIntegerProperty(customerID);
       this.name = new SimpleStringProperty(name);
-      this.address = new SimpleStringProperty(address);
-      this.phone = new SimpleStringProperty(phone);
+      this.addressID = new SimpleIntegerProperty(addressID);
+      // this.phone = new SimpleStringProperty(phone);
   }
     
   public int getID(){
@@ -46,31 +46,27 @@ public class Customer {
     return name;
   }
 
-  public void setAddress(String address){
-    this.address.set(address);
+  public void setAddressID(Integer addressID){
+    this.addressID.set(addressID);
   }
 
-  public String getAddress(){
-    return this.address.get();
+  public Integer getAddressID(){
+    return this.addressID.get();
   }
     
-  public StringProperty addressProperty() {
-    return address;
+  public IntegerProperty addressIDProperty() {
+    return addressID;
   }
 
-  public void setPhone(String phone){
-    this.phone.set(phone);
-  }
-
-  public String getPhone(){
-    return this.phone.get();
-  }
-    
-  public StringProperty phoneProperty() {
-    return phone;
-  }
-
-  private int generateID(){
-    return ID++;
-  }
+//  public void setPhone(String phone){
+//    this.phone.set(phone);
+//  }
+//
+//  public String getPhone(){
+//    return this.phone.get();
+//  }
+//    
+//  public StringProperty phoneProperty() {
+//    return phone;
+//  }
 }

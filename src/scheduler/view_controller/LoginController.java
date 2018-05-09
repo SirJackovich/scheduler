@@ -30,10 +30,7 @@ public class LoginController {
   void handleLogin() {
     String username = usernameTextField.getText();
     String password = passwordField.getText();
-    System.out.println("username: " + username);
-    System.out.println("password: " + password);
     if("test".equals(username) && "test".equals(password)){
-      System.out.println("You got it right!");
       auth = true;
       stage.close();
     }else{

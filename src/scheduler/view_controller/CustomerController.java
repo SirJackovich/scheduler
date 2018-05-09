@@ -1,6 +1,15 @@
 package scheduler.view_controller;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,6 +25,7 @@ import scheduler.model.Customer;
 public class CustomerController {
   
   private Stage stage;
+  private final ObservableList<Customer> customers = FXCollections.observableArrayList();
 
   @FXML
   private Button addButton;
@@ -33,7 +43,7 @@ public class CustomerController {
   private TableColumn<Customer, String> nameTableColumn;
 
   @FXML
-  private TableColumn<Customer, String> addressTableColumn;
+  private TableColumn<Customer, Integer> addressTableColumn;
 
   @FXML
   void handleAddButton() throws IOException{
@@ -70,6 +80,56 @@ public class CustomerController {
     
     // open the popup
     stage.showAndWait();
+  }
+  
+  @FXML
+  private void initialize() throws IOException, ClassNotFoundException{
+    ResultSet resultSet = getCustomersFromDataBase();
+    
+    // Initialize the customer table
+    IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
+    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+    addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
+    
+    try {
+      while (resultSet.next()) {
+        Integer customerID = resultSet.getInt("customerid");
+        String name = resultSet.getString("customerName");
+        Integer addressID = resultSet.getInt("addressId");
+        
+        Customer customer = new Customer(customerID, name, addressID);
+        customers.add(customer);
+      }
+      tableView.setItems(customers);
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+  
+  public ResultSet getCustomersFromDataBase() throws ClassNotFoundException {
+    String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
+    String username = "U04bLJ";
+    String password = "53688195100";
+    Connection connection;
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      Class.forName("com.mysql.jdbc.Driver");
+      connection = DriverManager.getConnection(URL, username, password);
+      try {
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery("SELECT customerid, customerName, addressId "
+        + "FROM customer");
+//        + "WHERE start >='2017-02-01 00:00:00'" 
+//        + "AND start <'2017-02-28 00:00:00' "
+//        + "ORDER BY customerid");
+      } catch (SQLException ex) {
+        ex.printStackTrace();
+      }
+    } catch (ClassNotFoundException | SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
   }
 
 }

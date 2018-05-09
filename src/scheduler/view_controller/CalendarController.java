@@ -9,7 +9,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,7 +19,6 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.Appointment;
-import scheduler.model.Customer;
 
 public class CalendarController {
   
@@ -59,7 +57,7 @@ public class CalendarController {
 
   @FXML
   private void handleComboBox() {
-    System.out.println(viewComboBox.getValue());
+    // TODO: display weekly or monthly
   }
   
   @FXML
@@ -109,12 +107,9 @@ public class CalendarController {
     } catch (SQLException ex) {
         Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
     }
-    viewComboBox.getItems().addAll("Week", "Month");
+    viewComboBox.getItems().addAll("Month", "Week");
     viewComboBox.getSelectionModel().select(0);
-    if(LoginController.showDialog(stage)){
-      System.out.println("I love my wife Sheralyn!!!");
-    }else{
-      System.out.println("I dont love my wife Sheralyn!!!");
+    if(!LoginController.showDialog(stage)){
       Platform.exit();
     }
   }
@@ -131,7 +126,11 @@ public class CalendarController {
       connection = DriverManager.getConnection(URL, username, password);
       try {
         statement = connection.createStatement();
-        resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId FROM appointment");
+        resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId "
+        + "FROM appointment "
+        + "WHERE start >='2017-02-01 00:00:00'" 
+        + "AND start <'2017-02-28 00:00:00' "
+        + "ORDER BY start");
       } catch (SQLException ex) {
         ex.printStackTrace();
       }
