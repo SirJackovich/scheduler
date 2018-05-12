@@ -75,6 +75,11 @@ public class CalendarController {
     AppointmentController.showDialog(stage, "Modify Appointment");
   }
   
+  @FXML
+  private void handleReportButton() throws IOException{
+    ReportsController.showDialog(stage, "Generate Reports");
+  }
+  
   public void setApp(Scheduler app) {
     this.app = app;
   }

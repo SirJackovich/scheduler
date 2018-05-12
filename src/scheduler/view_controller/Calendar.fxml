@@ -34,7 +34,7 @@
                   <Button fx:id="customerButton" mnemonicParsing="false" onAction="#handleCustomerButton" text="Manage Customers" />
                   <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddButton" text="Add" />
                   <Button fx:id="modifyButton" mnemonicParsing="false" onAction="#handleModifyButton" text="Modify" />
-                  <Button fx:id="reportButton" mnemonicParsing="false" text="Create Reports" />
+                  <Button fx:id="reportButton" mnemonicParsing="false" onAction="#handleReportButton" text="Create Reports" />
               </buttons>
             </ButtonBar>
          </children>
