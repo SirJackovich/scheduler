@@ -28,6 +28,7 @@ import scheduler.model.Appointment;
 public class ReportsController {
 
   private Stage stage;
+  private Connection connection;
   
   @FXML
   private ComboBox<String> typeComboBox;
@@ -177,6 +178,7 @@ public class ReportsController {
   
    @FXML
   private void initialize() throws IOException, ClassNotFoundException{
+    makeConnection();
     ResultSet resultSet = getDataFromDataBase("SELECT userName FROM user");
     
     ArrayList<String> consultants = new ArrayList<>();
@@ -197,24 +199,29 @@ public class ReportsController {
   }
   
   public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  private void makeConnection(){
     String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
     String username = "U04bLJ";
     String password = "53688195100";
-    Connection connection;
     ResultSet resultSet = null;
     Statement statement;
     try {
       Class.forName("com.mysql.jdbc.Driver");
       connection = DriverManager.getConnection(URL, username, password);
-      try {
-        statement = connection.createStatement();
-        resultSet = statement.executeQuery(query);
-      } catch (SQLException ex) {
-        ex.printStackTrace();
-      }
+      System.out.println("Making connection...");
     } catch (ClassNotFoundException | SQLException ex) {
       ex.printStackTrace();
     }
-    return resultSet;
   }
 }

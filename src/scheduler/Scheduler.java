@@ -23,7 +23,7 @@ public class Scheduler extends Application {
     showCalendar();
   }
   
-  public void showCalendar() throws IOException {
+  private void showCalendar() throws IOException {
     // Load calendar layout from fxml file
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(Scheduler.class.getResource("view_controller/Calendar.fxml"));
@@ -31,7 +31,6 @@ public class Scheduler extends Application {
 
     // Give the controller access to the main app.
     CalendarController calendarController = loader.getController();
-    calendarController.setApp(this);
     calendarController.setStage(stage);
 
     // Show the scene containing the calendar layout

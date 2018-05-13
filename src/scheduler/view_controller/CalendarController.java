@@ -17,13 +17,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
-import scheduler.Scheduler;
 import scheduler.model.Appointment;
 
 public class CalendarController {
-  
-  private Scheduler app;
   private Stage stage;
+  private Connection connection;
   private final ObservableList<Appointment> calendar = FXCollections.observableArrayList();
   
   
@@ -80,16 +78,13 @@ public class CalendarController {
     ReportsController.showDialog(stage, "Generate Reports");
   }
   
-  public void setApp(Scheduler app) {
-    this.app = app;
-  }
-  
   public void setStage(Stage stage){
     this.stage = stage;
   }
 
   @FXML
   private void initialize() throws IOException, ClassNotFoundException{
+    makeConnection();
     ResultSet resultSet = getAppointmentsFromDataBase();
     
     // Initialize the appointment table
@@ -119,30 +114,35 @@ public class CalendarController {
     }
   }
   
-  public ResultSet getAppointmentsFromDataBase() throws ClassNotFoundException {
+  public ResultSet getAppointmentsFromDataBase(){
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId "
+      + "FROM appointment "
+      + "WHERE start >='2017-02-01 00:00:00'" 
+      + "AND start <'2017-02-28 00:00:00' "
+      + "ORDER BY start");
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  private void makeConnection(){
     String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
     String username = "U04bLJ";
     String password = "53688195100";
-    Connection connection;
     ResultSet resultSet = null;
     Statement statement;
     try {
       Class.forName("com.mysql.jdbc.Driver");
       connection = DriverManager.getConnection(URL, username, password);
-      try {
-        statement = connection.createStatement();
-        resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId "
-        + "FROM appointment "
-        + "WHERE start >='2017-02-01 00:00:00'" 
-        + "AND start <'2017-02-28 00:00:00' "
-        + "ORDER BY start");
-      } catch (SQLException ex) {
-        ex.printStackTrace();
-      }
+      System.out.println("Making connection...");
     } catch (ClassNotFoundException | SQLException ex) {
       ex.printStackTrace();
     }
-    return resultSet;
   }
   
 }
