@@ -109,7 +109,7 @@ public class CalendarController {
     }
     viewComboBox.getItems().addAll("Month", "Week");
     viewComboBox.getSelectionModel().select(0);
-    if(!LoginController.showDialog(stage)){
+    if(!LoginController.showDialog(stage, connection)){
       Platform.exit();
     }
   }
@@ -134,8 +134,6 @@ public class CalendarController {
     String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
     String username = "U04bLJ";
     String password = "53688195100";
-    ResultSet resultSet = null;
-    Statement statement;
     try {
       Class.forName("com.mysql.jdbc.Driver");
       connection = DriverManager.getConnection(URL, username, password);
