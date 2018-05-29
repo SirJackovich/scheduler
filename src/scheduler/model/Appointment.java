@@ -16,6 +16,7 @@ public class Appointment {
    * Constructor with some initial data.
    * 
    * @param appointmentID
+   * @param start
    * @param name
    * @param type
    * @param customerID

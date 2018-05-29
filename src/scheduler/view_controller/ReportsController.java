@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.Appointment;
+import scheduler.model.Type;
 
 public class ReportsController {
 
@@ -59,10 +60,10 @@ public class ReportsController {
     String type = typeComboBox.getValue();
     switch(type){
       case "Appointments by Month":
-        appointmentsByMonth("SELECT description,COUNT(*) as count FROM appointment GROUP BY description");
+        appointmentsByMonth("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
         break;
       case "Consultant Schedule":
-        consultantSchedule("SELECT appointmentid, start, title, description, customerId FROM appointment where contact='" + consultantComboBox.getValue() + "'");
+        consultantSchedule("SELECT appointmentid, start, title, type, customerId FROM appointment where contact='" + consultantComboBox.getValue() + "'");
         break;
       case "Consultant Freetime":
         System.out.println("Consultant Freetime");
@@ -73,32 +74,30 @@ public class ReportsController {
   }
   
   public void appointmentsByMonth(String query) throws ClassNotFoundException{
-    // ObservableList<Appointment> calendar = FXCollections.observableArrayList();
-//    ResultSet resultSet = getDataFromDataBase(query);
-//    tableColumn1.setText("Time");
-//    tableColumn2.setText("Name");
-//    tableColumn3.setText("Type");
-//    tableColumn4.setText("Customer");
-//    
-//    tableColumn1.setCellValueFactory(cellData -> cellData.getValue().startProperty());
-//    tableColumn2.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-//    tableColumn3.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-//    tableColumn4.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
-//    
-//    try {
-//      while (resultSet.next()) {
-//        Integer appointmentID = resultSet.getInt("appointmentid");
-//        String time = resultSet.getString("start");
-//        String name = resultSet.getString("title");
-//        String description = resultSet.getString("description");
-//        Integer customerID = resultSet.getInt("customerId");
-//        Appointment appointment = new Appointment(appointmentID, time, name, description, customerID);
-//        calendar.add(appointment);
-//      }
-//      tableView.setItems(calendar);
-//    } catch (SQLException ex) {
-//        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-//    }
+    ObservableList<Type> table = FXCollections.observableArrayList();
+    ResultSet resultSet = getDataFromDataBase(query);
+    tableColumn1.setText("Type");
+    tableColumn2.setText("Count");
+    
+    tableColumn1.setCellValueFactory(
+      new PropertyValueFactory<>("type")
+    );
+    tableColumn2.setCellValueFactory(
+      new PropertyValueFactory<>("count")
+    );
+   
+    try {
+      while (resultSet.next()) {
+        String type = resultSet.getString("type");
+        Integer count = resultSet.getInt("count");
+        
+        Type type2 = new Type(count, type);
+        table.add(type2);
+      }
+      tableView.setItems(table);
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
   
   public void consultantSchedule(String query) throws ClassNotFoundException{
@@ -125,11 +124,11 @@ public class ReportsController {
     try {
       while (resultSet.next()) {
         Integer appointmentID = resultSet.getInt("appointmentid");
-        String time = resultSet.getString("start");
+        String start = resultSet.getString("start");
         String name = resultSet.getString("title");
-        String description = resultSet.getString("description");
+        String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
-        Appointment appointment = new Appointment(appointmentID, time, name, description, customerID);
+        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID);
         calendar.add(appointment);
       }
       tableView.setItems(calendar);
