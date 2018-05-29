@@ -75,7 +75,7 @@ public class CalendarController {
   
   @FXML
   private void handleReportButton() throws IOException{
-    ReportsController.showDialog(stage, "Generate Reports");
+    ReportsController.showDialog(stage, connection);
   }
   
   public void setStage(Stage stage){

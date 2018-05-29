@@ -2,7 +2,6 @@ package scheduler.view_controller;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,6 +15,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -35,7 +35,10 @@ public class ReportsController {
   private ComboBox<String> typeComboBox;
 
   @FXML
-  private ComboBox<String> consultantComboBox;
+  private ComboBox<String> personComboBox;
+  
+  @FXML
+  private Label personLabel;
 
   @FXML
   private Button generateButton;
@@ -60,22 +63,22 @@ public class ReportsController {
     String type = typeComboBox.getValue();
     switch(type){
       case "Appointments by Month":
-        appointmentsByMonth("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
+        appointmentsByMonth();
         break;
       case "Consultant Schedule":
-        consultantSchedule("SELECT appointmentid, start, title, type, customerId FROM appointment where contact='" + consultantComboBox.getValue() + "'");
+        consultantSchedule();
         break;
-      case "Consultant Freetime":
-        System.out.println("Consultant Freetime");
+      case "Customer Schedule":
+        customerSchedule();
         break;
       default:
         System.out.println("no type selected");
     }
   }
   
-  public void appointmentsByMonth(String query) throws ClassNotFoundException{
+  public void appointmentsByMonth() throws ClassNotFoundException{
     ObservableList<Type> table = FXCollections.observableArrayList();
-    ResultSet resultSet = getDataFromDataBase(query);
+    ResultSet resultSet = getDataFromDataBase("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
     tableColumn1.setText("Type");
     tableColumn2.setText("Count");
     
@@ -100,7 +103,15 @@ public class ReportsController {
     }
   }
   
-  public void consultantSchedule(String query) throws ClassNotFoundException{
+  public void consultantSchedule() throws ClassNotFoundException{
+    fillCallendar("SELECT appointmentid, start, title, type, customerId FROM appointment where contact='" + personComboBox.getValue() + "'");
+  }
+  
+  public void customerSchedule() throws ClassNotFoundException{
+    fillCallendar("SELECT appointmentid, start, title, type, customerId FROM appointment WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "')");
+  }
+    
+  public void fillCallendar(String query) throws ClassNotFoundException{
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     ResultSet resultSet = getDataFromDataBase(query);
     tableColumn1.setText("Time");
@@ -138,17 +149,25 @@ public class ReportsController {
   }
 
   @FXML
-  void handleTypeComboBox() {
+  void handleTypeComboBox() throws ClassNotFoundException {
     String type = typeComboBox.getValue();
-    if ("Appointments by Month".equals(type)){
-      consultantComboBox.setDisable(true);
-    } else{
-      consultantComboBox.setDisable(false);
-    }
-    
+    switch(type){
+      case "Appointments by Month":
+        personComboBox.setDisable(true);
+        personLabel.setDisable(true);
+        break;
+      case "Consultant Schedule":
+        fillComboBox("Consultant", "SELECT username FROM user", "username");
+        break;
+      case "Customer Schedule":
+        fillComboBox("Customer", "SELECT customerName FROM customer", "customerName");
+        break;
+      default:
+        System.out.println("no type selected");
+    } 
   }
 
-  public static void showDialog(Stage primaryStage, String title) throws IOException{
+  public static void showDialog(Stage primaryStage, Connection connection) throws IOException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -157,7 +176,7 @@ public class ReportsController {
 
     // Create the dialog Stage.
     Stage stage = new Stage();
-    stage.setTitle(title);
+    stage.setTitle("Generate Reports");
     stage.initModality(Modality.APPLICATION_MODAL);
     stage.initOwner(primaryStage);
     Scene scene = new Scene(page);
@@ -166,6 +185,7 @@ public class ReportsController {
     // set the stage so we can close it if needed
     ReportsController reportsController = loader.getController();
     reportsController.setStage(stage);
+    reportsController.setConnection(connection);
     
     // open the popup
     stage.showAndWait();
@@ -177,24 +197,10 @@ public class ReportsController {
   
    @FXML
   private void initialize() throws IOException, ClassNotFoundException{
-    makeConnection();
-    ResultSet resultSet = getDataFromDataBase("SELECT userName FROM user");
-    
-    ArrayList<String> consultants = new ArrayList<>();
-    try {
-      while (resultSet.next()) {
-        String consultant = resultSet.getString("userName");
-        consultants.add(consultant);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    typeComboBox.getItems().addAll("Appointments by Month", "Consultant Schedule", "Consultant Freetime");
+    typeComboBox.getItems().addAll("Appointments by Month", "Consultant Schedule", "Customer Schedule");
     typeComboBox.getSelectionModel().select(0);
-    consultantComboBox.setDisable(true);
-    
-    consultantComboBox.getItems().addAll(consultants);
-    consultantComboBox.getSelectionModel().select(0);
+    personComboBox.setDisable(true);
+    personLabel.setDisable(true);
   }
   
   public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
@@ -209,18 +215,26 @@ public class ReportsController {
     return resultSet;
   }
   
-  private void makeConnection(){
-    String URL = "jdbc:mysql://52.206.157.109/U04bLJ";
-    String username = "U04bLJ";
-    String password = "53688195100";
-    ResultSet resultSet = null;
-    Statement statement;
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+  
+  private void fillComboBox(String type, String query, String columnName) throws ClassNotFoundException{
+    personLabel.setText(type);
+    personLabel.setDisable(false);
+    personComboBox.setDisable(false);
+    ResultSet resultSet = getDataFromDataBase(query);
+    ArrayList<String> list = new ArrayList<>();
     try {
-      Class.forName("com.mysql.jdbc.Driver");
-      connection = DriverManager.getConnection(URL, username, password);
-      System.out.println("Making connection...");
-    } catch (ClassNotFoundException | SQLException ex) {
-      ex.printStackTrace();
+      while (resultSet.next()) {
+        String item = resultSet.getString(columnName);
+        list.add(item);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
     }
+    personComboBox.getItems().clear();
+    personComboBox.getItems().addAll(list);
+    personComboBox.getSelectionModel().select(0);
   }
 }

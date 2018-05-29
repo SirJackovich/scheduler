@@ -24,9 +24,9 @@
          <children>
           <Button fx:id="generateButton" layoutX="497.0" layoutY="27.0" mnemonicParsing="false" onAction="#handleGenerateButton" prefHeight="27.0" prefWidth="82.0" text="Generate" />
             <Label layoutX="29.0" layoutY="5.0" text="Type of Report" />
-            <ComboBox fx:id="typeComboBox" layoutX="29.0" layoutY="27.0" onAction="#handleTypeComboBox" prefHeight="27.0" prefWidth="200.0" promptText="Type of Report" />
-            <ComboBox fx:id="consultantComboBox" layoutX="260.0" layoutY="27.0" prefHeight="27.0" prefWidth="200.0" promptText="Consultant" />
-            <Label layoutX="260.0" layoutY="6.0" text="Consultant" />
+            <ComboBox fx:id="typeComboBox" layoutX="29.0" layoutY="27.0" onAction="#handleTypeComboBox" prefHeight="27.0" prefWidth="200.0" />
+            <ComboBox fx:id="personComboBox" layoutX="260.0" layoutY="27.0" prefHeight="27.0" prefWidth="200.0" />
+            <Label fx:id="personLabel" layoutX="260.0" layoutY="6.0" text="Consultant" />
          </children>
       </AnchorPane>
    </top>
