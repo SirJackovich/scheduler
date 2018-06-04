@@ -105,21 +105,17 @@ public class ReportsController {
   
   public void consultantSchedule() throws ClassNotFoundException{
     fillCallendar(
-    "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
-    "FROM appointment, customer, user " +
-    "WHERE appointment.customerId = customer.customerid " +
-    "AND appointment.userId = user.userId " + 
-    "AND contact='" + personComboBox.getValue() + "'" + 
+    "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+    "FROM appointment " +
+    "WHERE contact='" + personComboBox.getValue() + "'" + 
     "ORDER BY start", true);
   }
   
   public void customerSchedule() throws ClassNotFoundException{
     fillCallendar(
-    "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
-    "FROM appointment, customer, user " +
-    "WHERE appointment.customerId = customer.customerid " +
-    "AND appointment.userId = user.userId " + 
-    "AND customerName= '" + personComboBox.getValue() + "'" +
+    "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+    "FROM appointment " +
+    "WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "') " +
     "ORDER BY start", false);
   }
     
@@ -140,18 +136,18 @@ public class ReportsController {
       new PropertyValueFactory<>("start")
     );
     tableColumn2.setCellValueFactory(
-      new PropertyValueFactory<>("name")
+      new PropertyValueFactory<>("title")
     );
     tableColumn3.setCellValueFactory(
       new PropertyValueFactory<>("type")
     );
     if(consultant){
       tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("customerName")
+        new PropertyValueFactory<>("customerID")
       );
     }else{
       tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("userName")
+        new PropertyValueFactory<>("userID")
       );
     }
     
@@ -160,13 +156,16 @@ public class ReportsController {
       while (resultSet.next()) {
         Integer appointmentID = resultSet.getInt("appointmentid");
         String start = resultSet.getString("start");
-        String name = resultSet.getString("title");
+        String title = resultSet.getString("title");
         String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
-        String customerName = resultSet.getString("customerName");
         Integer userId = resultSet.getInt("userId");
-        String userName = resultSet.getString("userName");
-        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID, customerName, userId, userName);
+        String description = resultSet.getString("description");
+        String location = resultSet.getString("location");
+        String contact = resultSet.getString("contact");
+        String URL = resultSet.getString("url");
+        String end = resultSet.getString("end");
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
       tableView.setItems(calendar);

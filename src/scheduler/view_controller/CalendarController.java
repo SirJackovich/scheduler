@@ -17,6 +17,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import scheduler.model.AlertDialog;
 import scheduler.model.Appointment;
 
 public class CalendarController {
@@ -41,7 +42,7 @@ public class CalendarController {
   private TableColumn<Appointment, String> typeTableColumn;
 
   @FXML
-  private TableColumn<Appointment, String> customerTableColumn;
+  private TableColumn<Appointment, Integer> customerTableColumn;
 
   @FXML
   private Button customerButton;
@@ -65,12 +66,17 @@ public class CalendarController {
   
   @FXML
   private void handleAddButton() throws IOException{
-    AppointmentController.showDialog(stage, "Add Appointment");
+    AppointmentController.showDialog(stage, null, "Add Appointment");
   }
   
   @FXML
-  private void handleModifyButton() throws IOException{
-    AppointmentController.showDialog(stage, "Modify Appointment");
+  private void handleModifyButton() throws IOException{    
+    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
+    if (appointment != null) {
+      AppointmentController.showDialog(stage, appointment, "Modify Appointment");
+    } else {
+      AlertDialog.noSelectionDialog("appointment");
+    }
   }
   
   @FXML
@@ -89,21 +95,24 @@ public class CalendarController {
     
     // Initialize the appointment table
     timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
-    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
     typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerNameProperty());
+    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
     
     try {
       while (resultSet.next()) {
         Integer appointmentID = resultSet.getInt("appointmentid");
         String start = resultSet.getString("start");
-        String name = resultSet.getString("title");
+        String title = resultSet.getString("title");
         String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
-        String customerName = resultSet.getString("customerName");
         Integer userId = resultSet.getInt("userId");
-        String userName = resultSet.getString("userName");
-        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID, customerName, userId, userName);
+        String description = resultSet.getString("description");
+        String location = resultSet.getString("location");
+        String contact = resultSet.getString("contact");
+        String URL = resultSet.getString("url");
+        String end = resultSet.getString("end");
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
       calendarTableView.setItems(calendar);
@@ -123,10 +132,8 @@ public class CalendarController {
     try {
       statement = connection.createStatement();
       resultSet = statement.executeQuery(
-      "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
-      "FROM appointment, customer, user " +
-      "WHERE appointment.customerId = customer.customerid " +
-      "AND appointment.userId = user.userId " + 
+      "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+      "FROM appointment " +
       "ORDER BY start");
     } catch (SQLException ex) {
       ex.printStackTrace();

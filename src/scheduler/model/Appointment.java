@@ -8,34 +8,54 @@ import javafx.beans.property.StringProperty;
 public class Appointment {
   private final IntegerProperty appointmentID;
   private final StringProperty start;
-  private final StringProperty name;
+  private final StringProperty title;
   private final StringProperty type;
   private final IntegerProperty customerID;
-  private final StringProperty customerName;
   private final IntegerProperty userID;
-  private final StringProperty userName;
+  private final StringProperty description;
+  private final StringProperty location;
+  private final StringProperty contact;
+  private final StringProperty URL;
+  private final StringProperty end;
 
   /**
    * Constructor with some initial data.
    * 
    * @param appointmentID
    * @param start
-   * @param name
+   * @param title
    * @param type
    * @param customerID
-   * @param customerName
    * @param userID
-   * @param userName
+   * @param description
+   * @param location
+   * @param contact
+   * @param URL
+   * @param end
    */
-  public Appointment(Integer appointmentID, String start, String name, String type, Integer customerID, String customerName, Integer userID, String userName) {
-      this.appointmentID = new SimpleIntegerProperty(appointmentID);
-      this.start = new SimpleStringProperty(start);
-      this.name = new SimpleStringProperty(name);
-      this.type = new SimpleStringProperty(type);
-      this.customerID = new SimpleIntegerProperty(customerID);
-      this.customerName = new SimpleStringProperty(customerName);
-      this.userID = new SimpleIntegerProperty(userID);
-      this.userName = new SimpleStringProperty(userName);
+  public Appointment(
+      Integer appointmentID, 
+      String start, 
+      String title, 
+      String type, 
+      Integer customerID, 
+      Integer userID, 
+      String description,
+      String location,
+      String contact,
+      String URL,
+      String end) {
+    this.appointmentID = new SimpleIntegerProperty(appointmentID);
+    this.start = new SimpleStringProperty(start);
+    this.title = new SimpleStringProperty(title);
+    this.type = new SimpleStringProperty(type);
+    this.customerID = new SimpleIntegerProperty(customerID);
+    this.userID = new SimpleIntegerProperty(userID);
+    this.description = new SimpleStringProperty(description);
+    this.location = new SimpleStringProperty(location);
+    this.contact = new SimpleStringProperty(contact);
+    this.URL = new SimpleStringProperty(URL);
+    this.end = new SimpleStringProperty(end);
   }
     
   public int getID(){
@@ -58,16 +78,16 @@ public class Appointment {
     return start;
   }
 
-  public void setName(String name){
-    this.name.set(name);
+  public void setTitle(String title){
+    this.title.set(title);
   }
 
-  public String getName(){
-    return this.name.get();
+  public String getTitle(){
+    return this.title.get();
   }
     
-  public StringProperty nameProperty() {
-    return name;
+  public StringProperty titleProperty() {
+    return title;
   }
 
   public void setType(String type){
@@ -94,18 +114,6 @@ public class Appointment {
     return customerID;
   }
   
-  public void setCustomerName(String customerName){
-    this.customerName.set(customerName);
-  }
-
-  public String getCustomerName(){
-    return this.customerName.get();
-  }
-    
-  public StringProperty customerNameProperty() {
-    return customerName;
-  }
-  
   public void setUserID(Integer userID){
     this.userID.set(userID);
   }
@@ -118,15 +126,63 @@ public class Appointment {
     return userID;
   }
   
-  public void setUserName(String userName){
-    this.userName.set(userName);
+  public void setDescription(String description){
+    this.description.set(description);
   }
 
-  public String getUserName(){
-    return this.userName.get();
+  public String getDescription(){
+    return this.description.get();
   }
     
-  public StringProperty userNameProperty() {
-    return userName;
+  public StringProperty descriptionProperty() {
+    return description;
+  }
+  
+  public void setLocation(String location){
+    this.location.set(location);
+  }
+
+  public String getLocation(){
+    return this.location.get();
+  }
+    
+  public StringProperty locationProperty() {
+    return location;
+  }
+  
+  public void setContact(String contact){
+    this.contact.set(contact);
+  }
+
+  public String getContact(){
+    return this.contact.get();
+  }
+    
+  public StringProperty contactProperty() {
+    return contact;
+  }
+  
+  public void setURL(String URL){
+    this.URL.set(URL);
+  }
+
+  public String getURL(){
+    return this.URL.get();
+  }
+    
+  public StringProperty URLProperty() {
+    return URL;
+  }
+  
+  public void setEnd(String end){
+    this.end.set(end);
+  }
+
+  public String getEnd(){
+    return this.end.get();
+  }
+    
+  public StringProperty endProperty() {
+    return end;
   }
 }
