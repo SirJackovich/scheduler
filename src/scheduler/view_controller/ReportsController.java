@@ -104,20 +104,37 @@ public class ReportsController {
   }
   
   public void consultantSchedule() throws ClassNotFoundException{
-    fillCallendar("SELECT appointmentid, start, title, type, customerId FROM appointment where contact='" + personComboBox.getValue() + "'");
+    fillCallendar(
+    "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
+    "FROM appointment, customer, user " +
+    "WHERE appointment.customerId = customer.customerid " +
+    "AND appointment.userId = user.userId " + 
+    "AND contact='" + personComboBox.getValue() + "'" + 
+    "ORDER BY start", true);
   }
   
   public void customerSchedule() throws ClassNotFoundException{
-    fillCallendar("SELECT appointmentid, start, title, type, customerId FROM appointment WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "')");
+    fillCallendar(
+    "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
+    "FROM appointment, customer, user " +
+    "WHERE appointment.customerId = customer.customerid " +
+    "AND appointment.userId = user.userId " + 
+    "AND customerName= '" + personComboBox.getValue() + "'" +
+    "ORDER BY start", false);
   }
     
-  public void fillCallendar(String query) throws ClassNotFoundException{
+  public void fillCallendar(String query, Boolean consultant) throws ClassNotFoundException{
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     ResultSet resultSet = getDataFromDataBase(query);
     tableColumn1.setText("Time");
     tableColumn2.setText("Name");
     tableColumn3.setText("Type");
-    tableColumn4.setText("Customer");
+    if(consultant){
+      tableColumn4.setText("Customer");
+    }else{
+      tableColumn4.setText("Consultant");
+    }
+    
     
     tableColumn1.setCellValueFactory(
       new PropertyValueFactory<>("start")
@@ -128,9 +145,16 @@ public class ReportsController {
     tableColumn3.setCellValueFactory(
       new PropertyValueFactory<>("type")
     );
-    tableColumn4.setCellValueFactory(
-      new PropertyValueFactory<>("customerID")
-    );
+    if(consultant){
+      tableColumn4.setCellValueFactory(
+        new PropertyValueFactory<>("customerName")
+      );
+    }else{
+      tableColumn4.setCellValueFactory(
+        new PropertyValueFactory<>("userName")
+      );
+    }
+    
     
     try {
       while (resultSet.next()) {
@@ -139,7 +163,10 @@ public class ReportsController {
         String name = resultSet.getString("title");
         String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
-        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID);
+        String customerName = resultSet.getString("customerName");
+        Integer userId = resultSet.getInt("userId");
+        String userName = resultSet.getString("userName");
+        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID, customerName, userId, userName);
         calendar.add(appointment);
       }
       tableView.setItems(calendar);

@@ -41,7 +41,7 @@ public class CalendarController {
   private TableColumn<Appointment, String> typeTableColumn;
 
   @FXML
-  private TableColumn<Appointment, Integer> customerTableColumn;
+  private TableColumn<Appointment, String> customerTableColumn;
 
   @FXML
   private Button customerButton;
@@ -91,16 +91,19 @@ public class CalendarController {
     timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
     typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
+    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerNameProperty());
     
     try {
       while (resultSet.next()) {
         Integer appointmentID = resultSet.getInt("appointmentid");
-        String time = resultSet.getString("start");
+        String start = resultSet.getString("start");
         String name = resultSet.getString("title");
-        String type = resultSet.getString("description");
+        String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
-        Appointment appointment = new Appointment(appointmentID, time, name, type, customerID);
+        String customerName = resultSet.getString("customerName");
+        Integer userId = resultSet.getInt("userId");
+        String userName = resultSet.getString("userName");
+        Appointment appointment = new Appointment(appointmentID, start, name, type, customerID, customerName, userId, userName);
         calendar.add(appointment);
       }
       calendarTableView.setItems(calendar);
@@ -119,11 +122,12 @@ public class CalendarController {
     Statement statement;
     try {
       statement = connection.createStatement();
-      resultSet = statement.executeQuery("SELECT appointmentid, start, title, description, customerId "
-      + "FROM appointment "
-      + "WHERE start >='2017-02-01 00:00:00'" 
-      + "AND start <'2017-02-28 00:00:00' "
-      + "ORDER BY start");
+      resultSet = statement.executeQuery(
+      "SELECT appointmentid, start, title, type, customerName, appointment.customerId, appointment.userId, userName " +
+      "FROM appointment, customer, user " +
+      "WHERE appointment.customerId = customer.customerid " +
+      "AND appointment.userId = user.userId " + 
+      "ORDER BY start");
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

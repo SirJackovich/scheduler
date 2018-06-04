@@ -11,6 +11,9 @@ public class Appointment {
   private final StringProperty name;
   private final StringProperty type;
   private final IntegerProperty customerID;
+  private final StringProperty customerName;
+  private final IntegerProperty userID;
+  private final StringProperty userName;
 
   /**
    * Constructor with some initial data.
@@ -20,13 +23,19 @@ public class Appointment {
    * @param name
    * @param type
    * @param customerID
+   * @param customerName
+   * @param userID
+   * @param userName
    */
-  public Appointment(Integer appointmentID, String start, String name, String type, Integer customerID) {
+  public Appointment(Integer appointmentID, String start, String name, String type, Integer customerID, String customerName, Integer userID, String userName) {
       this.appointmentID = new SimpleIntegerProperty(appointmentID);
       this.start = new SimpleStringProperty(start);
       this.name = new SimpleStringProperty(name);
       this.type = new SimpleStringProperty(type);
       this.customerID = new SimpleIntegerProperty(customerID);
+      this.customerName = new SimpleStringProperty(customerName);
+      this.userID = new SimpleIntegerProperty(userID);
+      this.userName = new SimpleStringProperty(userName);
   }
     
   public int getID(){
@@ -83,5 +92,41 @@ public class Appointment {
     
   public IntegerProperty customerIDProperty() {
     return customerID;
+  }
+  
+  public void setCustomerName(String customerName){
+    this.customerName.set(customerName);
+  }
+
+  public String getCustomerName(){
+    return this.customerName.get();
+  }
+    
+  public StringProperty customerNameProperty() {
+    return customerName;
+  }
+  
+  public void setUserID(Integer userID){
+    this.userID.set(userID);
+  }
+
+  public Integer getUserID(){
+    return this.userID.get();
+  }
+    
+  public IntegerProperty userIDProperty() {
+    return userID;
+  }
+  
+  public void setUserName(String userName){
+    this.userName.set(userName);
+  }
+
+  public String getUserName(){
+    return this.userName.get();
+  }
+    
+  public StringProperty userNameProperty() {
+    return userName;
   }
 }
