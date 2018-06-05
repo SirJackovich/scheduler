@@ -24,7 +24,7 @@ public class AppointmentController {
 
   private Stage stage;
   private Connection connection;
-  private Integer appointmentID;
+  private String appointmentID;
   
   @FXML
   private Button saveButton;
@@ -86,6 +86,18 @@ public class AppointmentController {
         );
       }else{
         // update the appointment
+        updateAppointment(
+          userIDTextField.getText(),
+          customerIDTextField.getText(),
+          titleTextField.getText(),
+          descriptionTextField.getText(),
+          locationTextField.getText(),
+          contactTextField.getText(),
+          typeTextField.getText(),
+          URLTextField.getText(),
+          startTextField.getText(),
+          endTextField.getText()
+        );
       }
     }
   }
@@ -108,7 +120,7 @@ public class AppointmentController {
       startTextField.setText("");
       endTextField.setText("");
     }else{
-      this.appointmentID = appointment.getID();
+      this.appointmentID = Integer.toString(appointment.getID());
       userIDTextField.setText(Integer.toString(appointment.getUserID()));
       customerIDTextField.setText(Integer.toString(appointment.getCustomerID()));
       titleTextField.setText(appointment.getTitle());
@@ -231,6 +243,41 @@ public class AppointmentController {
       preparedStatement.setString(8, URL);
       preparedStatement.setString(9, start);
       preparedStatement.setString(10, end);
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    stage.close();
+  }
+  
+  private void updateAppointment(
+    String userID,
+    String customerID,
+    String title,
+    String description,
+    String location,
+    String contact,
+    String type,
+    String URL,
+    String start,
+    String end){
+    PreparedStatement preparedStatement;
+    try {
+      preparedStatement = connection.prepareStatement(
+        "UPDATE appointment " +
+        "SET customerId=?, userId=?, title=?, description=?, location=?, contact=?, type=?, url=?, start=?, end=? " +
+        "WHERE appointmentid = ?");
+      preparedStatement.setString(1, customerID);
+      preparedStatement.setString(2, userID);
+      preparedStatement.setString(3, title);
+      preparedStatement.setString(4, description);
+      preparedStatement.setString(5, location);
+      preparedStatement.setString(6, contact);
+      preparedStatement.setString(7, type);
+      preparedStatement.setString(8, URL);
+      preparedStatement.setString(9, start);
+      preparedStatement.setString(10, end);
+      preparedStatement.setString(11, this.appointmentID);
       preparedStatement.execute();
     } catch (SQLException ex) {
       ex.printStackTrace();

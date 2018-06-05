@@ -20,7 +20,7 @@
       <TableView fx:id="calendarTableView" prefHeight="218.0" prefWidth="600.0" BorderPane.alignment="CENTER">
         <columns>
           <TableColumn fx:id="timeTableColumn" prefWidth="174.0" text="Time" />
-          <TableColumn fx:id="nameTableColumn" prefWidth="161.0" text="Name" />
+          <TableColumn fx:id="nameTableColumn" prefWidth="161.0" text="Title" />
             <TableColumn fx:id="typeTableColumn" prefWidth="134.0" text="Type" />
             <TableColumn fx:id="customerTableColumn" prefWidth="128.0" text="Customer" />
         </columns>
