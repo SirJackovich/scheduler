@@ -60,8 +60,9 @@ public class CalendarController {
   }
   
   @FXML
-  private void handleCustomerButton() throws IOException{
-    CustomerController.showDialog(stage);
+  private void handleCustomerButton() throws IOException, ClassNotFoundException{
+    CustomerController.showDialog(stage, connection);
+    updateCalander();
   }
   
   @FXML
@@ -150,7 +151,6 @@ public class CalendarController {
     try {
       Class.forName("com.mysql.jdbc.Driver");
       connection = DriverManager.getConnection(URL, username, password);
-      System.out.println("Making connection...");
     } catch (ClassNotFoundException | SQLException ex) {
       ex.printStackTrace();
     }

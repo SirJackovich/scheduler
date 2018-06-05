@@ -71,8 +71,6 @@ public class ReportsController {
       case "Customer Schedule":
         customerSchedule();
         break;
-      default:
-        System.out.println("no type selected");
     }
   }
   
@@ -188,8 +186,6 @@ public class ReportsController {
       case "Customer Schedule":
         fillComboBox("Customer", "SELECT customerName FROM customer", "customerName");
         break;
-      default:
-        System.out.println("no type selected");
     } 
   }
 

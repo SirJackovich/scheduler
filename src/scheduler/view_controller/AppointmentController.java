@@ -70,7 +70,6 @@ public class AppointmentController {
   @FXML
   void handleSaveButton() {
     if(isInputValid()){
-      System.out.println("Valid input!");
       if(this.appointmentID == null){
         createAppointment(
           userIDTextField.getText(),
@@ -85,7 +84,6 @@ public class AppointmentController {
           endTextField.getText()
         );
       }else{
-        // update the appointment
         updateAppointment(
           userIDTextField.getText(),
           customerIDTextField.getText(),
