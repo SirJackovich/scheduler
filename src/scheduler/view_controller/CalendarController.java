@@ -65,15 +65,17 @@ public class CalendarController {
   }
   
   @FXML
-  private void handleAddButton() throws IOException{
-    AppointmentController.showDialog(stage, null, "Add Appointment");
+  private void handleAddButton() throws IOException, ClassNotFoundException{
+    AppointmentController.showDialog(stage, connection, null, "Add Appointment");
+    updateCalander();
   }
   
   @FXML
-  private void handleModifyButton() throws IOException{    
+  private void handleModifyButton() throws IOException, ClassNotFoundException{    
     Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
     if (appointment != null) {
-      AppointmentController.showDialog(stage, appointment, "Modify Appointment");
+      AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
+      updateCalander();
     } else {
       AlertDialog.noSelectionDialog("appointment");
     }
@@ -151,6 +153,31 @@ public class CalendarController {
       System.out.println("Making connection...");
     } catch (ClassNotFoundException | SQLException ex) {
       ex.printStackTrace();
+    }
+  }
+  
+  private void updateCalander(){
+    ResultSet resultSet = getAppointmentsFromDataBase();
+    calendar.clear();
+    try {
+      while (resultSet.next()) {
+        Integer appointmentID = resultSet.getInt("appointmentid");
+        String start = resultSet.getString("start");
+        String title = resultSet.getString("title");
+        String type = resultSet.getString("type");
+        Integer customerID = resultSet.getInt("customerId");
+        Integer userId = resultSet.getInt("userId");
+        String description = resultSet.getString("description");
+        String location = resultSet.getString("location");
+        String contact = resultSet.getString("contact");
+        String URL = resultSet.getString("url");
+        String end = resultSet.getString("end");
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
+        calendar.add(appointment);
+      }
+      calendarTableView.setItems(calendar);
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
   

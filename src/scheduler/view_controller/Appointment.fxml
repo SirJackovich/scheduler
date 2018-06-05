@@ -12,8 +12,8 @@
    <children>
       <GridPane layoutX="7.0" prefHeight="400.0" prefWidth="285.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="110.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0" prefWidth="175.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -29,7 +29,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="User ID" />
+            <Label text="Consultant ID" />
             <Label text="Customer ID" GridPane.rowIndex="1" />
             <Label text="Title" GridPane.rowIndex="2" />
             <Label text="Description" GridPane.rowIndex="3" />
@@ -49,8 +49,8 @@
             <TextField fx:id="contactTextField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="typeTextField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <TextField fx:id="URLTextField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <TextField fx:id="startTextField" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <TextField fx:id="endTextField" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <TextField fx:id="endTextField" promptText="2017-02-08 09:00:00.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <TextField fx:id="startTextField" promptText="2017-02-08 09:00:00.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
          </children>
       </GridPane>
    </children>

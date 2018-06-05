@@ -30,13 +30,13 @@ public class AlertDialog {
 //    Optional<ButtonType> result = alert.showAndWait();
 //    return (result.get() == ButtonType.OK);
 //  }
-//  
-//  public static void errorDialog(String errorMessage){
-//    Alert alert = new Alert(Alert.AlertType.ERROR);
-//    alert.setTitle("Invalid Fields");
-//    alert.setHeaderText("Please correct the invalid fields");
-//    alert.setContentText(errorMessage);
-//    alert.showAndWait();
-//  }
+  
+  public static void errorDialog(String errorMessage){
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setTitle("Invalid Fields");
+    alert.setHeaderText("Please correct the invalid fields");
+    alert.setContentText(errorMessage);
+    alert.showAndWait();
+  }
   
 }
