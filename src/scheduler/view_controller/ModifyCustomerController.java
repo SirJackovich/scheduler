@@ -3,17 +3,24 @@ package scheduler.view_controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.AlertDialog;
+import scheduler.model.Appointment;
 import scheduler.model.Customer;
 
 public class ModifyCustomerController {
@@ -26,7 +33,7 @@ public class ModifyCustomerController {
   private TextField nameTextField;
 
   @FXML
-  private TextField addressTextField;
+  private ComboBox<String> addressIDComboBox;
 
   @FXML
   private Button saveButton;
@@ -45,12 +52,12 @@ public class ModifyCustomerController {
       if(this.customerID == null){
         createCustomer(
           nameTextField.getText(),
-          addressTextField.getText()
+          addressIDComboBox.getValue()
         );
       }else{
         updateCustomer(
           nameTextField.getText(),
-          addressTextField.getText()
+          addressIDComboBox.getValue()
         );
       }
     }
@@ -64,11 +71,9 @@ public class ModifyCustomerController {
     if(customer == null){
       this.customerID = null;
       nameTextField.setText("");
-      addressTextField.setText("");
     }else{
       this.customerID = Integer.toString(customer.getID());
       nameTextField.setText(customer.getName());
-      addressTextField.setText(Integer.toString(customer.getAddressID()));
     }
   }
   
@@ -76,7 +81,7 @@ public class ModifyCustomerController {
     this.connection = connection;
   }
   
-  public static void showDialog(Stage primaryStage, Connection connection, Customer customer, String title) throws IOException{
+  public static void showDialog(Stage primaryStage, Connection connection, Customer customer, String title) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -98,12 +103,48 @@ public class ModifyCustomerController {
     
     if(customer != null){
       modifyCustomerController.setCustomer(customer);
+      modifyCustomerController.fillComboBox(customer);
     }else{
       modifyCustomerController.setCustomer(null);
+      modifyCustomerController.fillComboBox(null);
     }
     
     // open the popup
     stage.showAndWait();
+  }
+  
+    private void fillComboBox(Customer customer) throws ClassNotFoundException {
+    // get the addresses
+    ResultSet resultSet1 = getDataFromDataBase("SELECT addressid FROM address");
+    ArrayList<String> addresses = new ArrayList<>();
+    try {
+      while (resultSet1.next()) {
+        String addressID = resultSet1.getString("addressid");
+        addresses.add(addressID);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    addressIDComboBox.getItems().clear();
+    addressIDComboBox.getItems().addAll(addresses);
+    
+    if(customer == null){
+      addressIDComboBox.getSelectionModel().select(0);
+    }else{
+      addressIDComboBox.getSelectionModel().select(customer.getAddressID() -1);
+    }
+  }
+    
+  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
   }
   
   private boolean isInputValid() {
@@ -111,16 +152,6 @@ public class ModifyCustomerController {
 
     if (nameTextField.getText() == null || nameTextField.getText().length() == 0) {
       errorMessage += "No valid name!\n"; 
-    }
-    
-    if (addressTextField.getText() == null || addressTextField.getText().length() == 0) {
-      errorMessage += "No valid address id!\n"; 
-    } else {
-      try {
-        Integer.parseInt(addressTextField.getText());
-      } catch (NumberFormatException e) {
-        errorMessage += "No valid address id (must be an integer)!\n"; 
-      }
     }
     
     if (errorMessage.length() == 0) {

@@ -3,15 +3,21 @@ package scheduler.view_controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -33,10 +39,10 @@ public class AppointmentController {
   private Button cancelButton;
 
   @FXML
-  private TextField userIDTextField;
+  private ComboBox<String> userIDComboBox;
 
   @FXML
-  private TextField customerIDTextField;
+  private ComboBox<String> customerIDComboBox;
 
   @FXML
   private TextField titleTextField;
@@ -72,8 +78,8 @@ public class AppointmentController {
     if(isInputValid()){
       if(this.appointmentID == null){
         createAppointment(
-          userIDTextField.getText(),
-          customerIDTextField.getText(),
+          userIDComboBox.getValue(),
+          customerIDComboBox.getValue(),
           titleTextField.getText(),
           descriptionTextField.getText(),
           locationTextField.getText(),
@@ -85,8 +91,8 @@ public class AppointmentController {
         );
       }else{
         updateAppointment(
-          userIDTextField.getText(),
-          customerIDTextField.getText(),
+          userIDComboBox.getValue(),
+          customerIDComboBox.getValue(),
           titleTextField.getText(),
           descriptionTextField.getText(),
           locationTextField.getText(),
@@ -107,8 +113,6 @@ public class AppointmentController {
   public void setAppointment(Appointment appointment) {
     if(appointment == null){
       this.appointmentID = null;
-      userIDTextField.setText("");
-      customerIDTextField.setText("");
       titleTextField.setText("");
       descriptionTextField.setText("");
       locationTextField.setText("");
@@ -119,8 +123,6 @@ public class AppointmentController {
       endTextField.setText("");
     }else{
       this.appointmentID = Integer.toString(appointment.getID());
-      userIDTextField.setText(Integer.toString(appointment.getUserID()));
-      customerIDTextField.setText(Integer.toString(appointment.getCustomerID()));
       titleTextField.setText(appointment.getTitle());
       descriptionTextField.setText(appointment.getDescription());
       locationTextField.setText(appointment.getLocation());
@@ -137,7 +139,7 @@ public class AppointmentController {
     this.connection = connection;
   }
   
-  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title) throws IOException{
+  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -159,51 +161,75 @@ public class AppointmentController {
     
     if(appointment != null){
       appointmentController.setAppointment(appointment);
+      appointmentController.fillComboBoxes(appointment);
     }else{
       appointmentController.setAppointment(null);
+      appointmentController.fillComboBoxes(null);
     }
+    
+    
     
     // open the popup
     stage.showAndWait();
   }
   
-  private boolean isInputValid() {
-    String errorMessage = "";
-
-    if (userIDTextField.getText() == null || userIDTextField.getText().length() == 0) {
-      errorMessage += "No valid consultant id!\n"; 
-    } else {
-      try {
-        Integer.parseInt(userIDTextField.getText());
-      } catch (NumberFormatException e) {
-        errorMessage += "No valid consultant id (must be an integer)!\n"; 
+  private void fillComboBoxes(Appointment appointment) throws ClassNotFoundException {
+    // get the users
+    ResultSet resultSet1 = getDataFromDataBase("SELECT userid FROM user");
+    ArrayList<String> users = new ArrayList<>();
+    try {
+      while (resultSet1.next()) {
+        String userID = resultSet1.getString("userid");
+        users.add(userID);
       }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
     }
+    userIDComboBox.getItems().clear();
+    userIDComboBox.getItems().addAll(users);
     
-    if (customerIDTextField.getText() == null || customerIDTextField.getText().length() == 0) {
-      errorMessage += "No valid customer id!\n"; 
-    } else {
-      try {
-        Integer.parseInt(customerIDTextField.getText());
-      } catch (NumberFormatException e) {
-        errorMessage += "No valid customer id (must be an integer)!\n"; 
+    
+    // get the customers
+    ResultSet resultSet2 = getDataFromDataBase("SELECT customerid FROM customer");
+    ArrayList<String> customers = new ArrayList<>();
+    try {
+      while (resultSet2.next()) {
+        String customerid = resultSet2.getString("customerid");
+        customers.add(customerid);
       }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
     }
+    customerIDComboBox.getItems().clear();
+    customerIDComboBox.getItems().addAll(customers);
     
-    if(errorMessage.length() == 0){
-      errorMessage += checkDates();
-    }
     
-    if (errorMessage.length() == 0) {
-      return true;
-    } else {
-      AlertDialog.errorDialog(errorMessage);
-      return false;
+    if(appointment == null){
+      // select the first in each list
+      userIDComboBox.getSelectionModel().select(0);
+      customerIDComboBox.getSelectionModel().select(0);
+    }else{
+      //select the user and customer from the appointment
+      userIDComboBox.getSelectionModel().select(appointment.getUserID() -1);
+      customerIDComboBox.getSelectionModel().select(appointment.getCustomerID() -1);
     }
   }
   
-  private String checkDates() {
+  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  private boolean isInputValid() {
     String errorMessage = "";
+
     DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     
     try {
@@ -212,7 +238,13 @@ public class AppointmentController {
     } catch (ParseException ex) {
       errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss.SSS)!\n";
     }
-    return errorMessage;
+    
+    if (errorMessage.length() == 0) {
+      return true;
+    } else {
+      AlertDialog.errorDialog(errorMessage);
+      return false;
+    }
   }
   
   private void createAppointment(

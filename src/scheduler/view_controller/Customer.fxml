@@ -21,8 +21,8 @@
             <TableView fx:id="tableView" prefHeight="350.0" prefWidth="400.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn fx:id="IDTableColumn" prefWidth="146.0" text="ID" />
-                <TableColumn fx:id="nameTableColumn" prefWidth="199.0" text="Name" />
-                  <TableColumn fx:id="addressTableColumn" prefWidth="226.0" text="Address" />
+                <TableColumn fx:id="nameTableColumn" prefWidth="254.0" text="Name" />
+                  <TableColumn fx:id="addressTableColumn" prefWidth="171.0" text="Address ID" />
               </columns>
             </TableView>
          </center>
