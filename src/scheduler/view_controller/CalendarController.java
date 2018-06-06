@@ -6,6 +6,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -24,10 +28,12 @@ public class CalendarController {
   private Stage stage;
   private Connection connection;
   private final ObservableList<Appointment> calendar = FXCollections.observableArrayList();
-  
+  private String today;
+  private String tomorrow;
+  private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
   
   @FXML
-  private ComboBox viewComboBox;
+  private ComboBox<String> viewComboBox;
 
   @FXML
   private TableView<Appointment> calendarTableView;
@@ -56,19 +62,28 @@ public class CalendarController {
 
   @FXML
   private void handleComboBox() {
-    // TODO: display weekly or monthly
+    Calendar cal = Calendar.getInstance();
+    today = DATE_FORMAT.format(cal.getTime());
+    String view = viewComboBox.getValue();
+    if("Month".equals(view)){
+      cal.add(Calendar.MONTH, +1);
+    }else{
+      cal.add(Calendar.DAY_OF_YEAR, +7);
+    }
+    tomorrow = DATE_FORMAT.format(cal.getTime());
+    updateCalendar();
   }
   
   @FXML
   private void handleCustomerButton() throws IOException, ClassNotFoundException{
     CustomerController.showDialog(stage, connection);
-    updateCalander();
+    updateCalendar();
   }
   
   @FXML
   private void handleAddButton() throws IOException, ClassNotFoundException{
     AppointmentController.showDialog(stage, connection, null, "Add Appointment");
-    updateCalander();
+    updateCalendar();
   }
   
   @FXML
@@ -76,7 +91,7 @@ public class CalendarController {
     Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
     if (appointment != null) {
       AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
-      updateCalander();
+      updateCalendar();
     } else {
       AlertDialog.noSelectionDialog("appointment");
     }
@@ -94,6 +109,10 @@ public class CalendarController {
   @FXML
   private void initialize() throws IOException, ClassNotFoundException{
     makeConnection();
+    Calendar cal = Calendar.getInstance();
+    today = DATE_FORMAT.format(cal.getTime());
+    cal.add(Calendar.MONTH, +1);
+    tomorrow = DATE_FORMAT.format(cal.getTime());
     ResultSet resultSet = getAppointmentsFromDataBase();
     
     // Initialize the appointment table
@@ -124,6 +143,7 @@ public class CalendarController {
     }
     viewComboBox.getItems().addAll("Month", "Week");
     viewComboBox.getSelectionModel().select(0);
+    
     if(!LoginController.showDialog(stage, connection)){
       Platform.exit();
     }
@@ -137,6 +157,8 @@ public class CalendarController {
       resultSet = statement.executeQuery(
       "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
       "FROM appointment " +
+      "WHERE start >='" + today + "' " +
+      "AND start <'" + tomorrow + "' " +
       "ORDER BY start");
     } catch (SQLException ex) {
       ex.printStackTrace();
@@ -156,7 +178,7 @@ public class CalendarController {
     }
   }
   
-  private void updateCalander(){
+  private void updateCalendar(){
     ResultSet resultSet = getAppointmentsFromDataBase();
     calendar.clear();
     try {

@@ -79,12 +79,20 @@ public class ReportsController {
     ResultSet resultSet = getDataFromDataBase("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
     tableColumn1.setText("Type");
     tableColumn2.setText("Count");
+    tableColumn3.setText("");
+    tableColumn4.setText("");
     
     tableColumn1.setCellValueFactory(
       new PropertyValueFactory<>("type")
     );
     tableColumn2.setCellValueFactory(
       new PropertyValueFactory<>("count")
+    );
+    tableColumn3.setCellValueFactory(
+      new PropertyValueFactory<>("")
+    );
+    tableColumn4.setCellValueFactory(
+      new PropertyValueFactory<>("")
     );
    
     try {
@@ -105,7 +113,7 @@ public class ReportsController {
     fillCallendar(
     "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
     "FROM appointment " +
-    "WHERE contact='" + personComboBox.getValue() + "'" + 
+    "WHERE userId= (SELECT userId FROM user WHERE userName='" + personComboBox.getValue() + "') " +
     "ORDER BY start", true);
   }
   
@@ -128,7 +136,6 @@ public class ReportsController {
     }else{
       tableColumn4.setText("Consultant");
     }
-    
     
     tableColumn1.setCellValueFactory(
       new PropertyValueFactory<>("start")
