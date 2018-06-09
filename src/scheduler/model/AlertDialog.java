@@ -11,25 +11,12 @@ public class AlertDialog {
     alert.showAndWait();
   }
   
-//  public static boolean deleteDialog(){
-//    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//    alert.setTitle("Confirm Delete");
-//    alert.setHeaderText("Confirm Delete");
-//    alert.setContentText("You are about to delete something, once deleted it cannot be recovered.");
-//    
-//    Optional<ButtonType> result = alert.showAndWait();
-//    return (result.get() == ButtonType.OK);
-//  }
-//  
-//  public static boolean cancelDialog(){
-//    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//    alert.setTitle("Confirm Cancel");
-//    alert.setHeaderText("Confirm Cancel");
-//    alert.setContentText("Are you sure you want to cancel? Any changes you have made will be lost.");
-//
-//    Optional<ButtonType> result = alert.showAndWait();
-//    return (result.get() == ButtonType.OK);
-//  }
+  public static void reminder(){
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    alert.setTitle("Appointment Reminder");
+    alert.setContentText("You have an appointment in the next 15 minutes.");
+    alert.showAndWait();
+  }
   
   public static void errorDialog(String errorMessage){
     Alert alert = new Alert(Alert.AlertType.ERROR);

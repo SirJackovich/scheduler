@@ -7,9 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -31,6 +36,8 @@ public class CalendarController {
   private String today;
   private String tomorrow;
   private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+  private long FIFTEEN_MINUTES = MILLISECONDS.convert(15, MINUTES);
+  private Boolean reminder = false;
   
   @FXML
   private ComboBox<String> viewComboBox;
@@ -107,7 +114,7 @@ public class CalendarController {
   }
 
   @FXML
-  private void initialize() throws IOException, ClassNotFoundException{
+  private void initialize() throws IOException, ClassNotFoundException, ParseException{
     makeConnection();
     Calendar cal = Calendar.getInstance();
     today = DATE_FORMAT.format(cal.getTime());
@@ -123,12 +130,20 @@ public class CalendarController {
     
     try {
       while (resultSet.next()) {
-        Integer appointmentID = resultSet.getInt("appointmentid");
+        int appointmentID = resultSet.getInt("appointmentid");
         String start = resultSet.getString("start");
+        if(!reminder){
+          Date startTime = DATE_FORMAT.parse(start);
+          Date currentTime = DATE_FORMAT.parse(today);          
+          long time = getDateDifference(currentTime, startTime);
+          if (time <= FIFTEEN_MINUTES) {
+            reminder = true;
+          }
+        }
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
-        Integer customerID = resultSet.getInt("customerId");
-        Integer userId = resultSet.getInt("userId");
+        int customerID = resultSet.getInt("customerId");
+        int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
@@ -144,8 +159,17 @@ public class CalendarController {
     viewComboBox.getItems().addAll("Month", "Week");
     viewComboBox.getSelectionModel().select(0);
     
+    // Language testing
+    // Locale.setDefault(new Locale("es", "ES"));
+		ResourceBundle rb = ResourceBundle.getBundle("locales/scheduler");
+		System.out.println(Locale.getDefault());
+		
+		System.out.println(rb.getString("test"));
+    
     if(!LoginController.showDialog(stage, connection)){
       Platform.exit();
+    }else if(reminder){
+      AlertDialog.reminder();
     }
   }
   
@@ -183,12 +207,12 @@ public class CalendarController {
     calendar.clear();
     try {
       while (resultSet.next()) {
-        Integer appointmentID = resultSet.getInt("appointmentid");
+        int appointmentID = resultSet.getInt("appointmentid");
         String start = resultSet.getString("start");
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
-        Integer customerID = resultSet.getInt("customerId");
-        Integer userId = resultSet.getInt("userId");
+        int customerID = resultSet.getInt("customerId");
+        int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
@@ -203,6 +227,8 @@ public class CalendarController {
     }
   }
   
+  public long getDateDifference(Date date1, Date date2) {
+    return date2.getTime() - date1.getTime();
+  }
+  
 }
-
-
