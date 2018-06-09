@@ -12,7 +12,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
@@ -27,12 +26,6 @@ public class CustomerController {
   private Stage stage;
   private Connection connection;
   private final ObservableList<Customer> customers = FXCollections.observableArrayList();
-
-  @FXML
-  private Button addButton;
-
-  @FXML
-  private Button modifyButton;
 
   @FXML
   private TableView<Customer> tableView;
@@ -98,26 +91,11 @@ public class CustomerController {
   
   @FXML
   private void initialize() throws IOException, ClassNotFoundException{
-    // ResultSet resultSet = getCustomersFromDataBase();
-    
     // Initialize the customer table
     IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
     addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
     
-//    try {
-//      while (resultSet.next()) {
-//        Integer customerID = resultSet.getInt("customerid");
-//        String name = resultSet.getString("customerName");
-//        Integer addressID = resultSet.getInt("addressId");
-//        
-//        Customer customer = new Customer(customerID, name, addressID);
-//        customers.add(customer);
-//      }
-//      tableView.setItems(customers);
-//    } catch (SQLException ex) {
-//        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-//    }
   }
   
   public ResultSet getCustomersFromDataBase() throws ClassNotFoundException {

@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -20,7 +19,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.AlertDialog;
-import scheduler.model.Appointment;
 import scheduler.model.Customer;
 
 public class ModifyCustomerController {
@@ -34,12 +32,6 @@ public class ModifyCustomerController {
 
   @FXML
   private ComboBox<String> addressIDComboBox;
-
-  @FXML
-  private Button saveButton;
-
-  @FXML
-  private Button cancelButton;
 
   @FXML
   void handleCancelButton() {

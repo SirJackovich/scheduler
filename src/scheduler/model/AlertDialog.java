@@ -11,13 +11,6 @@ public class AlertDialog {
     alert.showAndWait();
   }
   
-  public static void reminder(){
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    alert.setTitle("Appointment Reminder");
-    alert.setContentText("You have an appointment in the next 15 minutes.");
-    alert.showAndWait();
-  }
-  
   public static void errorDialog(String errorMessage){
     Alert alert = new Alert(Alert.AlertType.ERROR);
     alert.setTitle("Invalid Fields");

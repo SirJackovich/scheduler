@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -25,18 +24,13 @@ import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.AlertDialog;
 import scheduler.model.Appointment;
+import scheduler.model.DateTime;
 
 public class AppointmentController {
 
   private Stage stage;
   private Connection connection;
   private String appointmentID;
-  
-  @FXML
-  private Button saveButton;
-
-  @FXML
-  private Button cancelButton;
 
   @FXML
   private ComboBox<String> userIDComboBox;
@@ -167,8 +161,6 @@ public class AppointmentController {
       appointmentController.fillComboBoxes(null);
     }
     
-    
-    
     // open the popup
     stage.showAndWait();
   }
@@ -230,13 +222,13 @@ public class AppointmentController {
   private boolean isInputValid() {
     String errorMessage = "";
 
-    DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     try {
       Date start = DATE_FORMAT.parse(startTextField.getText());
       Date end = DATE_FORMAT.parse(endTextField.getText());
     } catch (ParseException ex) {
-      errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss.SSS)!\n";
+      errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss)!\n";
     }
     
     if (errorMessage.length() == 0) {
@@ -271,8 +263,8 @@ public class AppointmentController {
       preparedStatement.setString(6, contact);
       preparedStatement.setString(7, type);
       preparedStatement.setString(8, URL);
-      preparedStatement.setString(9, start);
-      preparedStatement.setString(10, end);
+      preparedStatement.setString(9, DateTime.makeDateUTC(start));
+      preparedStatement.setString(10, DateTime.makeDateUTC(end));
       preparedStatement.execute();
     } catch (SQLException ex) {
       ex.printStackTrace();
@@ -305,8 +297,8 @@ public class AppointmentController {
       preparedStatement.setString(6, contact);
       preparedStatement.setString(7, type);
       preparedStatement.setString(8, URL);
-      preparedStatement.setString(9, start);
-      preparedStatement.setString(10, end);
+      preparedStatement.setString(9, DateTime.makeDateUTC(start));
+      preparedStatement.setString(10, DateTime.makeDateUTC(end));
       preparedStatement.setString(11, this.appointmentID);
       preparedStatement.execute();
     } catch (SQLException ex) {

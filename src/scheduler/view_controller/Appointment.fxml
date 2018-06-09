@@ -48,8 +48,8 @@
             <TextField fx:id="contactTextField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <TextField fx:id="typeTextField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <TextField fx:id="URLTextField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <TextField fx:id="endTextField" promptText="yyyy-MM-dd HH:mm:ss.SSS" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-            <TextField fx:id="startTextField" promptText="yyyy-MM-dd HH:mm:ss.SSS" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <TextField fx:id="endTextField" promptText="yyyy-MM-dd HH:mm:ss" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <TextField fx:id="startTextField" promptText="yyyy-MM-dd HH:mm:ss" GridPane.columnIndex="1" GridPane.rowIndex="8" />
             <ComboBox fx:id="userIDComboBox" prefWidth="150.0" GridPane.columnIndex="1" />
             <ComboBox fx:id="customerIDComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>

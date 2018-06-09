@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +14,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import scheduler.Scheduler;
 import scheduler.model.Appointment;
+import scheduler.model.DateTime;
 import scheduler.model.Type;
 
 public class ReportsController {
@@ -41,9 +42,6 @@ public class ReportsController {
   private Label personLabel;
 
   @FXML
-  private Button generateButton;
-
-  @FXML
   private TableView tableView;
   
   @FXML
@@ -59,7 +57,7 @@ public class ReportsController {
   private TableColumn tableColumn4;
 
   @FXML
-  void handleGenerateButton() throws ClassNotFoundException {
+  void handleGenerateButton() throws ClassNotFoundException, ParseException {
     String type = typeComboBox.getValue();
     switch(type){
       case "Appointments by Month":
@@ -109,7 +107,7 @@ public class ReportsController {
     }
   }
   
-  public void consultantSchedule() throws ClassNotFoundException{
+  public void consultantSchedule() throws ClassNotFoundException, ParseException{
     fillCallendar(
     "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
     "FROM appointment " +
@@ -117,7 +115,7 @@ public class ReportsController {
     "ORDER BY start", true);
   }
   
-  public void customerSchedule() throws ClassNotFoundException{
+  public void customerSchedule() throws ClassNotFoundException, ParseException{
     fillCallendar(
     "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
     "FROM appointment " +
@@ -125,7 +123,7 @@ public class ReportsController {
     "ORDER BY start", false);
   }
     
-  public void fillCallendar(String query, Boolean consultant) throws ClassNotFoundException{
+  public void fillCallendar(String query, Boolean consultant) throws ClassNotFoundException, ParseException{
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     ResultSet resultSet = getDataFromDataBase(query);
     tableColumn1.setText("Time");
@@ -160,7 +158,7 @@ public class ReportsController {
     try {
       while (resultSet.next()) {
         Integer appointmentID = resultSet.getInt("appointmentid");
-        String start = resultSet.getString("start");
+        String start = DateTime.makeDateLocal(resultSet.getString("start"));
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
         Integer customerID = resultSet.getInt("customerId");
@@ -169,7 +167,7 @@ public class ReportsController {
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
-        String end = resultSet.getString("end");
+        String end = DateTime.makeDateLocal(resultSet.getString("end"));
         Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }

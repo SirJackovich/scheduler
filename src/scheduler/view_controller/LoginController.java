@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -13,7 +14,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -34,11 +34,9 @@ public class LoginController {
   private TextField passwordField;
 
   @FXML
-  private Button loginButton;
-
-  @FXML
   void handleLogin() {
     auth = false;
+    // default username and password is "test"
     String username = usernameTextField.getText();
     String password = passwordField.getText();
     ObservableList<User> users = getUsers();
@@ -50,9 +48,13 @@ public class LoginController {
     if(auth){
       stage.close();
     }else{
+      // Language testing
+      // Locale.setDefault(new Locale("es", "ES"));
+      
+      ResourceBundle rb = ResourceBundle.getBundle("locales/scheduler");
       Alert alert = new Alert(Alert.AlertType.ERROR);
-      alert.setTitle("Invalid Credentials");
-      alert.setContentText("The username and password did not match.");
+      alert.setTitle(rb.getString("title"));
+      alert.setContentText(rb.getString("message"));
       alert.showAndWait();
     }
   }
