@@ -136,9 +136,6 @@ public class AppointmentController {
   
   private boolean isInputValid() throws ClassNotFoundException {
     String errorMessage = "";
-
-
-    
     try {
       Date start = DATE_FORMAT.parse(startTextField.getText());
       Date end = DATE_FORMAT.parse(endTextField.getText());
@@ -146,52 +143,20 @@ public class AppointmentController {
         errorMessage += "End time must be after start time!\n";
       }
       
-      Calendar starttime = Calendar.getInstance();
-      starttime.setTime(DATE_FORMAT.parse(startTextField.getText()));
-      Calendar morning = Calendar.getInstance();
-      morning.setTime(DATE_FORMAT.parse(startTextField.getText()));
-      Calendar night = Calendar.getInstance();
-      night.setTime(DATE_FORMAT.parse(startTextField.getText()));
-
-      morning.set(Calendar.HOUR, 7);
-      morning.set(Calendar.MINUTE, 59);
-      morning.set(Calendar.AM_PM, Calendar.AM);
-
-      night.set(Calendar.HOUR, 5);
-      night.set(Calendar.MINUTE, 01);
-      night.set(Calendar.AM_PM, Calendar.PM);
-      
-      if(starttime.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || starttime.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || starttime.before(morning) || starttime.after(night)){
+      if(duringBusinessHours(startTextField.getText())){
         errorMessage += "Meeting must start during buisness hours 8am to 5pm Monday to Friday!\n";
       }
       
-      Calendar endtime = Calendar.getInstance();
-      endtime.setTime(DATE_FORMAT.parse(endTextField.getText()));
-      morning = Calendar.getInstance();
-      morning.setTime(DATE_FORMAT.parse(endTextField.getText()));
-      night = Calendar.getInstance();
-      night.setTime(DATE_FORMAT.parse(endTextField.getText()));
-
-      morning.set(Calendar.HOUR, 7);
-      morning.set(Calendar.MINUTE, 59);
-      morning.set(Calendar.AM_PM, Calendar.AM);
-
-      night.set(Calendar.HOUR, 5);
-      night.set(Calendar.MINUTE, 01);
-      night.set(Calendar.AM_PM, Calendar.PM);
-      
-      if(endtime.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || endtime.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || endtime.before(morning) || endtime.after(night)){
+      if(duringBusinessHours(endTextField.getText())){
         errorMessage += "Meeting must end during buisness hours 8am to 5pm Monday to Friday!\n";
       }
       
-      if(appointmentsOverlap(starttime, endtime)){
+      if(appointmentsOverlap()){
         errorMessage += "There is already an appointment scheduled durring this time!\n";
       }
     } catch (ParseException ex) {
       errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss)!\n";
     }
-    
-    
     
     if (errorMessage.length() == 0) {
       return true;
@@ -201,59 +166,37 @@ public class AppointmentController {
     }
   }
   
-  private boolean appointmentsOverlap(Calendar starttime, Calendar endtime) throws ClassNotFoundException, ParseException{
+  private boolean duringBusinessHours(String time) throws ParseException{
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(DATE_FORMAT.parse(time));
+    Calendar morning = Calendar.getInstance();
+    morning.setTime(DATE_FORMAT.parse(time));
+    Calendar night = Calendar.getInstance();
+    night.setTime(DATE_FORMAT.parse(time));
+
+    morning.set(Calendar.HOUR, 7);
+    morning.set(Calendar.MINUTE, 59);
+    morning.set(Calendar.AM_PM, Calendar.AM);
+
+    night.set(Calendar.HOUR, 5);
+    night.set(Calendar.MINUTE, 01);
+    night.set(Calendar.AM_PM, Calendar.PM);
+
+    return cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.before(morning) || cal.after(night);
+  }
+  
+  private boolean appointmentsOverlap() throws ClassNotFoundException, ParseException{
     boolean overlap = false;
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
-    ResultSet resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE userId=" + userIDComboBox.getValue() + " " +
-              "ORDER BY start");
-    try {
-      while (resultSet.next()) {
-        int apptID = resultSet.getInt("appointmentid");
-        String start = DateTime.makeDateLocal(resultSet.getString("start"));
-        String title = resultSet.getString("title");
-        String type = resultSet.getString("type");
-        int customerID = resultSet.getInt("customerId");
-        int userId = resultSet.getInt("userId");
-        String description = resultSet.getString("description");
-        String location = resultSet.getString("location");
-        String contact = resultSet.getString("contact");
-        String URL = resultSet.getString("url");
-        String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(apptID, start, title, type, customerID, userId, description, location, contact, URL, end);
-        calendar.add(appointment);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    
-    resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE customerId=" + customerIDComboBox.getValue() + " " +
-              "ORDER BY start");
-    try {
-      while (resultSet.next()) {
-        int apptID = resultSet.getInt("appointmentid");
-        String start = DateTime.makeDateLocal(resultSet.getString("start"));
-        String title = resultSet.getString("title");
-        String type = resultSet.getString("type");
-        int customerID = resultSet.getInt("customerId");
-        int userId = resultSet.getInt("userId");
-        String description = resultSet.getString("description");
-        String location = resultSet.getString("location");
-        String contact = resultSet.getString("contact");
-        String URL = resultSet.getString("url");
-        String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(apptID, start, title, type, customerID, userId, description, location, contact, URL, end);
-        calendar.add(appointment);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    calendar.addAll(getAppointments(true));
+    calendar.addAll(getAppointments(false));
     
     for (Appointment appointment : calendar) {
       try {
+        Calendar starttime = Calendar.getInstance();
+        starttime.setTime(DATE_FORMAT.parse(startTextField.getText()));
+        Calendar endtime = Calendar.getInstance();
+        endtime.setTime(DATE_FORMAT.parse(endTextField.getText()));
         Calendar morning = Calendar.getInstance();
         morning.setTime(DATE_FORMAT.parse(appointment.getStart()));
         Calendar night = Calendar.getInstance();
@@ -267,6 +210,43 @@ public class AppointmentController {
       }
     }
     return overlap;
+  }
+  
+  private ObservableList<Appointment> getAppointments(boolean customers) throws ClassNotFoundException, ParseException{
+    ObservableList<Appointment> calendar = FXCollections.observableArrayList();
+    ResultSet resultSet;
+    if(customers){
+      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+              "FROM appointment " +
+              "WHERE customerId=" + customerIDComboBox.getValue() + " " +
+              "ORDER BY start");
+    }else{
+      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+              "FROM appointment " +
+              "WHERE userId=" + userIDComboBox.getValue() + " " +
+              "ORDER BY start");
+    }
+    
+    try {
+      while (resultSet.next()) {
+        int apptID = resultSet.getInt("appointmentid");
+        String start = DateTime.makeDateLocal(resultSet.getString("start"));
+        String title = resultSet.getString("title");
+        String type = resultSet.getString("type");
+        int customerID = resultSet.getInt("customerId");
+        int userId = resultSet.getInt("userId");
+        String description = resultSet.getString("description");
+        String location = resultSet.getString("location");
+        String contact = resultSet.getString("contact");
+        String URL = resultSet.getString("url");
+        String end = DateTime.makeDateLocal(resultSet.getString("end"));
+        Appointment appointment = new Appointment(apptID, start, title, type, customerID, userId, description, location, contact, URL, end);
+        calendar.add(appointment);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return calendar;
   }
   
   public  ArrayList<String> getComboBoxItems(String table, String column) throws ClassNotFoundException{
