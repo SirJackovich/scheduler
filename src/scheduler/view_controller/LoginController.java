@@ -1,10 +1,21 @@
 package scheduler.view_controller;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,6 +37,7 @@ public class LoginController {
   private Stage stage;
   private Connection connection;
   private boolean auth = false;
+  private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   
   @FXML
   private TextField usernameTextField;
@@ -58,7 +70,7 @@ public class LoginController {
   }
 
   @FXML
-  private void handleLogin() {
+  private void handleLogin() throws IOException {
     auth = false;
     // default username and password is "test"
     String username = usernameTextField.getText();
@@ -70,6 +82,16 @@ public class LoginController {
       }
 		}
     if(auth){
+      Calendar cal = Calendar.getInstance();	
+      String time = DATE_FORMAT.format(cal.getTime());
+      List<String> lines = Arrays.asList(time + " User: " + username + " logged in.");
+      Path file = Paths.get("scheduler_logs.txt");
+      try {
+        Files.createFile(file);
+      } catch (FileAlreadyExistsException ex) {
+        // file already exists
+      }
+      Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
       stage.close();
     }else{
       // Language testing
