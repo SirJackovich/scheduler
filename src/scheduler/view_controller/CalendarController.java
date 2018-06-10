@@ -3,6 +3,7 @@ package scheduler.view_controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -28,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import scheduler.model.AlertDialog;
 import scheduler.model.Appointment;
+import scheduler.model.Customer;
 import scheduler.model.DateTime;
 
 public class CalendarController {
@@ -60,7 +62,6 @@ public class CalendarController {
   @FXML
   private void handleComboBox() throws ParseException {
     Calendar cal = Calendar.getInstance();
-    today = DATE_FORMAT.format(cal.getTime());
     String view = viewComboBox.getValue();
     if("Month".equals(view)){
       cal.add(Calendar.MONTH, +1);
@@ -88,6 +89,17 @@ public class CalendarController {
     Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
     if (appointment != null) {
       AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
+      updateCalendar();
+    } else {
+      AlertDialog.noSelectionDialog("appointment");
+    }
+  }
+  
+  @FXML
+  private void handleDeleteButton() throws ParseException {    
+    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
+    if (appointment != null) {
+      deleteAppointment(appointment);
       updateCalendar();
     } else {
       AlertDialog.noSelectionDialog("appointment");
@@ -220,6 +232,17 @@ public class CalendarController {
       calendarTableView.setItems(calendar);
     } catch (SQLException ex) {
         Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+  
+  private void deleteAppointment(Appointment appointment){
+     PreparedStatement preparedStatement;
+    try {
+      preparedStatement = connection.prepareStatement("DELETE FROM appointment WHERE appointmentid =?");
+      preparedStatement.setString(1, Integer.toString(appointment.getID()));
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
     }
   }
   

@@ -2,6 +2,7 @@ package scheduler.view_controller;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,6 +51,17 @@ public class CustomerController {
     Customer customer = tableView.getSelectionModel().getSelectedItem(); 
     if (customer != null) {
       ModifyCustomerController.showDialog(stage, connection, customer, "Modify Customer");
+      updateCustomers();
+    } else {
+      AlertDialog.noSelectionDialog("customer");
+    }
+  }
+  
+  @FXML
+  void handleDeleteButton() throws ClassNotFoundException {
+    Customer customer = tableView.getSelectionModel().getSelectedItem(); 
+    if (customer != null) {
+      deleteCustomer(customer);
       updateCustomers();
     } else {
       AlertDialog.noSelectionDialog("customer");
@@ -128,6 +140,17 @@ public class CustomerController {
       tableView.setItems(customers);
     } catch (SQLException ex) {
         Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+  
+  private void deleteCustomer(Customer customer){
+     PreparedStatement preparedStatement;
+    try {
+      preparedStatement = connection.prepareStatement("DELETE FROM customer WHERE customerid =?");
+      preparedStatement.setString(1, Integer.toString(customer.getID()));
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
     }
   }
 
