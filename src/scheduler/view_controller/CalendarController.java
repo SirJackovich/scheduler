@@ -51,7 +51,7 @@ public class CalendarController {
   private TableColumn<Appointment, String> typeTableColumn;
 
   @FXML
-  private TableColumn<Appointment, Integer> customerTableColumn;
+  private TableColumn<Appointment, String> customerTableColumn;
   
   private void deleteAppointment(Appointment appointment){
      PreparedStatement preparedStatement;
@@ -70,10 +70,12 @@ public class CalendarController {
     try {
       statement = connection.createStatement();
       resultSet = statement.executeQuery(
-      "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-      "FROM appointment " +
+      "SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
+      "FROM appointment, customer, user " +
       "WHERE start >='" + DateTime.makeDateUTC(today) + "' " +
       "AND start <'" + DateTime.makeDateUTC(tomorrow) + "' " +
+      "AND appointment.userId = user.userid " +
+      "AND appointment.customerId = customer.customerid " + 
       "ORDER BY start");
     } catch (SQLException ex) {
       ex.printStackTrace();
@@ -138,10 +140,11 @@ public class CalendarController {
   @FXML
   private void initialize() throws IOException, ClassNotFoundException, ParseException{
     // Initialize the appointment table
+    // use lambda expressions to map the appointment properties to the table cells
     timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
     typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
+    customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerNameProperty());
     
     // Initialize the comboBox
     viewComboBox.getItems().addAll("Month", "Week");
@@ -191,14 +194,16 @@ public class CalendarController {
         String start = DateTime.makeDateLocal(resultSet.getString("start"));
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
+        String customerName = resultSet.getString("customerName");
         int customerID = resultSet.getInt("customerId");
+        String userName = resultSet.getString("userName");
         int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerName, customerID, userName, userId, description, location, contact, URL, end);
         calendar.add(appointment);
         if(init){
           if(reminder.equals("")){         

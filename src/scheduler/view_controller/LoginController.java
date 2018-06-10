@@ -46,25 +46,22 @@ public class LoginController {
   private TextField passwordField;
 
   private ObservableList<User> getUsers(){
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery("Select userid, userName, password from user");
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
     ObservableList<User> users = FXCollections.observableArrayList();
-    try {
-      while (resultSet.next()) {
-        int userID = resultSet.getInt("userid");
-        String username = resultSet.getString("userName");
-        String password = resultSet.getString("password");
-        User user = new User(userID, username, password);
-        users.add(user);
+    try (Statement statement = connection.createStatement();
+      ResultSet resultSet = statement.executeQuery("Select userid, userName, password from user");) {
+      try {
+        while (resultSet.next()) {
+          int userID = resultSet.getInt("userid");
+          String username = resultSet.getString("userName");
+          String password = resultSet.getString("password");
+          User user = new User(userID, username, password);
+          users.add(user);
+        }
+      } catch (SQLException ex) {
+          Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
       }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
     return users;
   }

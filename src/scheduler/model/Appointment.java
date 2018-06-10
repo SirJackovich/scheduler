@@ -10,7 +10,9 @@ public class Appointment {
   private final StringProperty start;
   private final StringProperty title;
   private final StringProperty type;
+  private final StringProperty customerName;
   private final IntegerProperty customerID;
+  private final StringProperty userName;
   private final IntegerProperty userID;
   private final StringProperty description;
   private final StringProperty location;
@@ -18,12 +20,14 @@ public class Appointment {
   private final StringProperty URL;
   private final StringProperty end;
 
-  public Appointment(int appointmentID, String start, String title, String type, int customerID, int userID, String description,String location, String contact, String URL, String end) {
+  public Appointment(int appointmentID, String start, String title, String type, String customerName, int customerID, String userName, int userID, String description,String location, String contact, String URL, String end) {
     this.appointmentID = new SimpleIntegerProperty(appointmentID);
     this.start = new SimpleStringProperty(start);
     this.title = new SimpleStringProperty(title);
     this.type = new SimpleStringProperty(type);
+    this.customerName = new SimpleStringProperty(customerName);
     this.customerID = new SimpleIntegerProperty(customerID);
+    this.userName = new SimpleStringProperty(userName);
     this.userID = new SimpleIntegerProperty(userID);
     this.description = new SimpleStringProperty(description);
     this.location = new SimpleStringProperty(location);
@@ -75,6 +79,18 @@ public class Appointment {
   public StringProperty typeProperty() {
     return type;
   }
+  
+  public void setCustomerName(String customerName){
+    this.customerName.set(customerName);
+  }
+
+  public String getCustomerName(){
+    return this.customerName.get();
+  }
+    
+  public StringProperty customerNameProperty() {
+    return customerName;
+  }
 
   public void setCustomerID(int customerID){
     this.customerID.set(customerID);
@@ -86,6 +102,18 @@ public class Appointment {
     
   public IntegerProperty customerIDProperty() {
     return customerID;
+  }
+  
+  public void setUserName(String userName){
+    this.userName.set(userName);
+  }
+
+  public String getUserName(){
+    return this.userName.get();
+  }
+    
+  public StringProperty userNameProperty() {
+    return userName;
   }
   
   public void setUserID(int userID){

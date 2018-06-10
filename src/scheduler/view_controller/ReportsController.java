@@ -120,25 +120,29 @@ public class ReportsController {
     );
     if(consultant){
       tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("customerID")
+        new PropertyValueFactory<>("customerName")
       );
     }else{
       tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("userID")
+        new PropertyValueFactory<>("userName")
       );
     }
     
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     String query;
     if(consultant){
-      query = "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE userId= (SELECT userId FROM user WHERE userName='" + personComboBox.getValue() + "') " +
+      query = "SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
+              "FROM appointment, customer, user " +
+              "WHERE userName='" + personComboBox.getValue() + "' " +
+              "AND appointment.userId = user.userid " +
+              "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start";
     }else{
-      query = "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "') " +
+      query = "SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
+              "FROM appointment, customer, user " +
+              "WHERE customerName='" + personComboBox.getValue() + "' " +
+              "AND appointment.userId = user.userid " +
+              "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start";
     }
     ResultSet resultSet = getDataFromDataBase(query);
@@ -149,14 +153,16 @@ public class ReportsController {
         String start = DateTime.makeDateLocal(resultSet.getString("start"));
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
+        String customerName = resultSet.getString("customerName");
         int customerID = resultSet.getInt("customerId");
+        String userName = resultSet.getString("userName");
         int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerName, customerID, userName, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
       tableView.setItems(calendar);

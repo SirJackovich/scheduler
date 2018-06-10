@@ -216,14 +216,18 @@ public class AppointmentController {
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     ResultSet resultSet;
     if(customers){
-      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE customerId=" + customerIDComboBox.getValue() + " " +
+      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
+              "FROM appointment, customer, user " +
+              "WHERE appointment.customerId=" + customerIDComboBox.getValue() + " " +
+              "AND appointment.userId = user.userid " +
+              "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start");
     }else{
-      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-              "FROM appointment " +
-              "WHERE userId=" + userIDComboBox.getValue() + " " +
+      resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
+              "FROM appointment, customer, user " +
+              "WHERE appointment.userId=" + userIDComboBox.getValue() + " " +
+              "AND appointment.userId = user.userid " +
+              "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start");
     }
     
@@ -233,14 +237,16 @@ public class AppointmentController {
         String start = DateTime.makeDateLocal(resultSet.getString("start"));
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
+        String customerName = resultSet.getString("customerName");
         int customerID = resultSet.getInt("customerId");
+        String userName = resultSet.getString("userName");
         int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(apptID, start, title, type, customerID, userId, description, location, contact, URL, end);
+        Appointment appointment = new Appointment(apptID, start, title, type, customerName, customerID, userName, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
     } catch (SQLException ex) {

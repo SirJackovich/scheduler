@@ -84,6 +84,7 @@ public class CustomerController {
   @FXML
   private void initialize() throws IOException, ClassNotFoundException{
     // Initialize the customer table
+    // use lambda expressions to map the customer properties to the table cells
     IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
     addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
