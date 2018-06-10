@@ -71,31 +71,9 @@ public class AppointmentController {
   void handleSaveButton() {
     if(isInputValid()){
       if(this.appointmentID == null){
-        createAppointment(
-          userIDComboBox.getValue(),
-          customerIDComboBox.getValue(),
-          titleTextField.getText(),
-          descriptionTextField.getText(),
-          locationTextField.getText(),
-          contactTextField.getText(),
-          typeTextField.getText(),
-          URLTextField.getText(),
-          startTextField.getText(),
-          endTextField.getText()
-        );
+        handleAppointment(true);
       }else{
-        updateAppointment(
-          userIDComboBox.getValue(),
-          customerIDComboBox.getValue(),
-          titleTextField.getText(),
-          descriptionTextField.getText(),
-          locationTextField.getText(),
-          contactTextField.getText(),
-          typeTextField.getText(),
-          URLTextField.getText(),
-          startTextField.getText(),
-          endTextField.getText()
-        );
+        handleAppointment(false);
       }
     }
   }
@@ -166,35 +144,11 @@ public class AppointmentController {
   }
   
   private void fillComboBoxes(Appointment appointment) throws ClassNotFoundException {
-    // get the users
-    ResultSet resultSet1 = getDataFromDataBase("SELECT userid FROM user");
-    ArrayList<String> users = new ArrayList<>();
-    try {
-      while (resultSet1.next()) {
-        String userID = resultSet1.getString("userid");
-        users.add(userID);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
     userIDComboBox.getItems().clear();
-    userIDComboBox.getItems().addAll(users);
+    userIDComboBox.getItems().addAll(getComboBoxItems("user", "userid"));
     
-    
-    // get the customers
-    ResultSet resultSet2 = getDataFromDataBase("SELECT customerid FROM customer");
-    ArrayList<String> customers = new ArrayList<>();
-    try {
-      while (resultSet2.next()) {
-        String customerid = resultSet2.getString("customerid");
-        customers.add(customerid);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
     customerIDComboBox.getItems().clear();
-    customerIDComboBox.getItems().addAll(customers);
-    
+    customerIDComboBox.getItems().addAll(getComboBoxItems("customer", "customerid"));
     
     if(appointment == null){
       // select the first in each list
@@ -205,6 +159,20 @@ public class AppointmentController {
       userIDComboBox.getSelectionModel().select(appointment.getUserID() -1);
       customerIDComboBox.getSelectionModel().select(appointment.getCustomerID() -1);
     }
+  }
+  
+  public  ArrayList<String> getComboBoxItems(String table, String column) throws ClassNotFoundException{
+    ResultSet resultSet = getDataFromDataBase("SELECT " + column + " FROM " + table);
+    ArrayList<String> items = new ArrayList<>();
+    try {
+      while (resultSet.next()) {
+        String item = resultSet.getString(column);
+        items.add(item);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return items;
   }
   
   public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
@@ -239,67 +207,33 @@ public class AppointmentController {
     }
   }
   
-  private void createAppointment(
-    String userID,
-    String customerID,
-    String title,
-    String description,
-    String location,
-    String contact,
-    String type,
-    String URL,
-    String start,
-    String end){
+  private void handleAppointment(boolean newAppointment){
     PreparedStatement preparedStatement;
     try {
-      preparedStatement = connection.prepareStatement(
+      if(newAppointment){
+        preparedStatement = connection.prepareStatement(
         "INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdateBy)" +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), 'admin', 'admin')");
-      preparedStatement.setString(1, customerID);
-      preparedStatement.setString(2, userID);
-      preparedStatement.setString(3, title);
-      preparedStatement.setString(4, description);
-      preparedStatement.setString(5, location);
-      preparedStatement.setString(6, contact);
-      preparedStatement.setString(7, type);
-      preparedStatement.setString(8, URL);
-      preparedStatement.setString(9, DateTime.makeDateUTC(start));
-      preparedStatement.setString(10, DateTime.makeDateUTC(end));
-      preparedStatement.execute();
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    stage.close();
-  }
-  
-  private void updateAppointment(
-    String userID,
-    String customerID,
-    String title,
-    String description,
-    String location,
-    String contact,
-    String type,
-    String URL,
-    String start,
-    String end){
-    PreparedStatement preparedStatement;
-    try {
-      preparedStatement = connection.prepareStatement(
+      }else{
+        preparedStatement = connection.prepareStatement(
         "UPDATE appointment " +
         "SET customerId=?, userId=?, title=?, description=?, location=?, contact=?, type=?, url=?, start=?, end=? " +
         "WHERE appointmentid = ?");
-      preparedStatement.setString(1, customerID);
-      preparedStatement.setString(2, userID);
-      preparedStatement.setString(3, title);
-      preparedStatement.setString(4, description);
-      preparedStatement.setString(5, location);
-      preparedStatement.setString(6, contact);
-      preparedStatement.setString(7, type);
-      preparedStatement.setString(8, URL);
-      preparedStatement.setString(9, DateTime.makeDateUTC(start));
-      preparedStatement.setString(10, DateTime.makeDateUTC(end));
-      preparedStatement.setString(11, this.appointmentID);
+      }
+      
+      preparedStatement.setString(1, customerIDComboBox.getValue());
+      preparedStatement.setString(2, userIDComboBox.getValue());
+      preparedStatement.setString(3, titleTextField.getText());
+      preparedStatement.setString(4, descriptionTextField.getText());
+      preparedStatement.setString(5, locationTextField.getText());
+      preparedStatement.setString(6, contactTextField.getText());
+      preparedStatement.setString(7, typeTextField.getText());
+      preparedStatement.setString(8, URLTextField.getText());
+      preparedStatement.setString(9, DateTime.makeDateUTC(startTextField.getText()));
+      preparedStatement.setString(10, DateTime.makeDateUTC(endTextField.getText()));
+      if(!newAppointment){
+        preparedStatement.setString(11, this.appointmentID);
+      }
       preparedStatement.execute();
     } catch (SQLException ex) {
       ex.printStackTrace();

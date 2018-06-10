@@ -48,20 +48,22 @@ public class CustomerController {
 
   @FXML
   void handleModifyButton() throws IOException, ClassNotFoundException{
-    Customer customer = tableView.getSelectionModel().getSelectedItem(); 
-    if (customer != null) {
-      ModifyCustomerController.showDialog(stage, connection, customer, "Modify Customer");
-      updateCustomers();
-    } else {
-      AlertDialog.noSelectionDialog("customer");
-    }
+    handleButton(false);
   }
   
   @FXML
-  void handleDeleteButton() throws ClassNotFoundException {
+  void handleDeleteButton() throws ClassNotFoundException, IOException {
+    handleButton(true);
+  }
+  
+  private void handleButton(boolean delete) throws ClassNotFoundException, IOException{
     Customer customer = tableView.getSelectionModel().getSelectedItem(); 
     if (customer != null) {
-      deleteCustomer(customer);
+      if(delete){
+        deleteCustomer(customer);
+      }else{
+        ModifyCustomerController.showDialog(stage, connection, customer, "Modify Customer");
+      }
       updateCustomers();
     } else {
       AlertDialog.noSelectionDialog("customer");

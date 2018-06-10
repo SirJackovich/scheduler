@@ -42,15 +42,9 @@ public class ModifyCustomerController {
   void handleSaveButton() {
     if(isInputValid()){
       if(this.customerID == null){
-        createCustomer(
-          nameTextField.getText(),
-          addressIDComboBox.getValue()
-        );
+        handleCustomer(true);
       }else{
-        updateCustomer(
-          nameTextField.getText(),
-          addressIDComboBox.getValue()
-        );
+        handleCustomer(false);
       }
     }
   }
@@ -154,31 +148,24 @@ public class ModifyCustomerController {
     }
   }
   
-  private void createCustomer(String name, String address){
+  private void handleCustomer(boolean newCustomer){
     PreparedStatement preparedStatement;
     try {
-      preparedStatement = connection.prepareStatement(
+      if(newCustomer){
+        preparedStatement = connection.prepareStatement(
         "INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdateBy) " +
         "VALUES (?, ?, 1, CURDATE(), 'admin', 'admin')");
-      preparedStatement.setString(1, name);
-      preparedStatement.setString(2, address);
-      preparedStatement.execute();
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    stage.close();
-  }
-  
-  private void updateCustomer(String name, String address){
-    PreparedStatement preparedStatement;
-    try {
-      preparedStatement = connection.prepareStatement(
+      }else{
+        preparedStatement = connection.prepareStatement(
         "UPDATE customer " +
         "SET customerName=?, addressId=? " +
         "WHERE customerid = ?");
-      preparedStatement.setString(1, name);
-      preparedStatement.setString(2, address);
-      preparedStatement.setString(3, customerID);
+      }
+      preparedStatement.setString(1, nameTextField.getText());
+      preparedStatement.setString(2, addressIDComboBox.getValue());
+      if(!newCustomer){
+        preparedStatement.setString(3, customerID);
+      }
       preparedStatement.execute();
     } catch (SQLException ex) {
       ex.printStackTrace();

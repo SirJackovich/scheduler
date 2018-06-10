@@ -108,24 +108,14 @@ public class ReportsController {
   }
   
   public void consultantSchedule() throws ClassNotFoundException, ParseException{
-    fillCallendar(
-    "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-    "FROM appointment " +
-    "WHERE userId= (SELECT userId FROM user WHERE userName='" + personComboBox.getValue() + "') " +
-    "ORDER BY start", true);
+    fillCallendar(true);
   }
   
   public void customerSchedule() throws ClassNotFoundException, ParseException{
-    fillCallendar(
-    "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-    "FROM appointment " +
-    "WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "') " +
-    "ORDER BY start", false);
+    fillCallendar(false);
   }
     
-  public void fillCallendar(String query, Boolean consultant) throws ClassNotFoundException, ParseException{
-    ObservableList<Appointment> calendar = FXCollections.observableArrayList();
-    ResultSet resultSet = getDataFromDataBase(query);
+  public void fillCallendar(boolean consultant) throws ClassNotFoundException, ParseException{
     tableColumn1.setText("Time");
     tableColumn2.setText("Name");
     tableColumn3.setText("Type");
@@ -154,6 +144,20 @@ public class ReportsController {
       );
     }
     
+    ObservableList<Appointment> calendar = FXCollections.observableArrayList();
+    String query;
+    if(consultant){
+      query = "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+              "FROM appointment " +
+              "WHERE userId= (SELECT userId FROM user WHERE userName='" + personComboBox.getValue() + "') " +
+              "ORDER BY start";
+    }else{
+      query = "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+              "FROM appointment " +
+              "WHERE customerId= (SELECT customerId FROM customer WHERE customerName='" + personComboBox.getValue() + "') " +
+              "ORDER BY start";
+    }
+    ResultSet resultSet = getDataFromDataBase(query);
     
     try {
       while (resultSet.next()) {

@@ -7,14 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,7 +24,6 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import scheduler.model.AlertDialog;
 import scheduler.model.Appointment;
-import scheduler.model.Customer;
 import scheduler.model.DateTime;
 
 public class CalendarController {
@@ -69,41 +63,29 @@ public class CalendarController {
       cal.add(Calendar.DAY_OF_YEAR, +7);
     }
     tomorrow = DATE_FORMAT.format(cal.getTime());
-    updateCalendar();
+    updateCalendar(false);
   }
   
   @FXML
   private void handleCustomerButton() throws IOException, ClassNotFoundException, ParseException{
     CustomerController.showDialog(stage, connection);
-    updateCalendar();
+    updateCalendar(false);
   }
   
   @FXML
   private void handleAddButton() throws IOException, ClassNotFoundException, ParseException{
     AppointmentController.showDialog(stage, connection, null, "Add Appointment");
-    updateCalendar();
+    updateCalendar(false);
   }
   
   @FXML
   private void handleModifyButton() throws IOException, ClassNotFoundException, ParseException{    
-    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
-    if (appointment != null) {
-      AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
-      updateCalendar();
-    } else {
-      AlertDialog.noSelectionDialog("appointment");
-    }
+    handleButton(false);
   }
   
   @FXML
-  private void handleDeleteButton() throws ParseException {    
-    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
-    if (appointment != null) {
-      deleteAppointment(appointment);
-      updateCalendar();
-    } else {
-      AlertDialog.noSelectionDialog("appointment");
-    }
+  private void handleDeleteButton() throws ParseException, IOException, ClassNotFoundException {    
+    handleButton(true);
   }
   
   @FXML
@@ -117,60 +99,29 @@ public class CalendarController {
 
   @FXML
   private void initialize() throws IOException, ClassNotFoundException, ParseException{
-    // connect to database
-    makeConnection();
-    
     // Initialize the appointment table
     timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
     typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
     customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerIDProperty().asObject());
     
-    // get todays timestamp based on timezone
-    Instant now = Instant.now();
-    ZoneId timeZone = ZoneId.systemDefault();
-    ZonedDateTime todayZonedDateTime = now.atZone(timeZone);
-    LocalDateTime todayLocalDateTime = todayZonedDateTime.toLocalDateTime();
-    Timestamp todayTimestamp = Timestamp.valueOf(todayLocalDateTime);
-    today = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(todayTimestamp);
-
-    // get 1 months from now timestamp based on timezone
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(todayTimestamp);
-    cal.add(Calendar.MONTH, +1);
-    tomorrow = DATE_FORMAT.format(cal.getTime());
-    
-    ResultSet resultSet = getAppointmentsFromDataBase();
-    
-    try {
-      while (resultSet.next()) {
-        int appointmentID = resultSet.getInt("appointmentid");
-        String start = DateTime.makeDateLocal(resultSet.getString("start"));
-        String title = resultSet.getString("title");
-        String type = resultSet.getString("type");
-        int customerID = resultSet.getInt("customerId");
-        int userId = resultSet.getInt("userId");
-        String description = resultSet.getString("description");
-        String location = resultSet.getString("location");
-        String contact = resultSet.getString("contact");
-        String URL = resultSet.getString("url");
-        String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
-        calendar.add(appointment);
-        if(reminder.equals("")){         
-          if (DateTime.inFifteenMinutes(today, start)) {
-            String[] parts = start.split(" ");
-            reminder = "You have a meeting at " + parts[1];
-          }
-        }
-      }
-      calendarTableView.setItems(calendar);
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    // Initialize the comboBox
     viewComboBox.getItems().addAll("Month", "Week");
     viewComboBox.getSelectionModel().select(0);
     
+    // set the today and tomorrow properties 
+    Calendar cal = Calendar.getInstance();	
+    today = DATE_FORMAT.format(cal.getTime());	
+    cal.add(Calendar.MONTH, +1);	
+    tomorrow = DATE_FORMAT.format(cal.getTime());
+    
+    // connect to database
+    makeConnection();
+    
+    // fill in the table
+    updateCalendar(true);
+    
+    // show the login dialog
     if(!LoginController.showDialog(stage, connection)){
       Platform.exit();
     }else if(!reminder.equals("")){
@@ -210,7 +161,7 @@ public class CalendarController {
     }
   }
   
-  private void updateCalendar() throws ParseException{
+  private void updateCalendar(boolean init) throws ParseException{
     ResultSet resultSet = getAppointmentsFromDataBase();
     calendar.clear();
     try {
@@ -228,6 +179,14 @@ public class CalendarController {
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
         Appointment appointment = new Appointment(appointmentID, start, title, type, customerID, userId, description, location, contact, URL, end);
         calendar.add(appointment);
+        if(init){
+          if(reminder.equals("")){         
+            if (DateTime.inFifteenMinutes(today, start)) {
+              String[] parts = start.split(" ");
+              reminder = "You have a meeting at " + parts[1];
+            }
+          }
+        }
       }
       calendarTableView.setItems(calendar);
     } catch (SQLException ex) {
@@ -243,6 +202,20 @@ public class CalendarController {
       preparedStatement.execute();
     } catch (SQLException ex) {
       ex.printStackTrace();
+    }
+  }
+  
+  private void handleButton(boolean delete) throws ParseException, IOException, ClassNotFoundException{
+    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
+    if (appointment != null) {
+      if(delete){
+        deleteAppointment(appointment);
+      }else{
+        AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
+      }
+      updateCalendar(false);
+    } else {
+      AlertDialog.noSelectionDialog("appointment");
     }
   }
   
