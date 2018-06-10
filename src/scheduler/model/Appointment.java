@@ -18,33 +18,7 @@ public class Appointment {
   private final StringProperty URL;
   private final StringProperty end;
 
-  /**
-   * Constructor with some initial data.
-   * 
-   * @param appointmentID
-   * @param start
-   * @param title
-   * @param type
-   * @param customerID
-   * @param userID
-   * @param description
-   * @param location
-   * @param contact
-   * @param URL
-   * @param end
-   */
-  public Appointment(
-      Integer appointmentID, 
-      String start, 
-      String title, 
-      String type, 
-      Integer customerID, 
-      Integer userID, 
-      String description,
-      String location,
-      String contact,
-      String URL,
-      String end) {
+  public Appointment(int appointmentID, String start, String title, String type, int customerID, int userID, String description,String location, String contact, String URL, String end) {
     this.appointmentID = new SimpleIntegerProperty(appointmentID);
     this.start = new SimpleStringProperty(start);
     this.title = new SimpleStringProperty(title);
@@ -102,11 +76,11 @@ public class Appointment {
     return type;
   }
 
-  public void setCustomerID(Integer customerID){
+  public void setCustomerID(int customerID){
     this.customerID.set(customerID);
   }
 
-  public Integer getCustomerID(){
+  public int getCustomerID(){
     return this.customerID.get();
   }
     
@@ -114,11 +88,11 @@ public class Appointment {
     return customerID;
   }
   
-  public void setUserID(Integer userID){
+  public void setUserID(int userID){
     this.userID.set(userID);
   }
 
-  public Integer getUserID(){
+  public int getUserID(){
     return this.userID.get();
   }
     

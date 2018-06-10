@@ -40,22 +40,23 @@ public class CustomerController {
   @FXML
   private TableColumn<Customer, Integer> addressTableColumn;
 
+  private void deleteCustomer(Customer customer){
+     PreparedStatement preparedStatement;
+    try {
+      preparedStatement = connection.prepareStatement("DELETE FROM customer WHERE customerid =?");
+      preparedStatement.setString(1, Integer.toString(customer.getID()));
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+  }
+
   @FXML
-  void handleAddButton() throws IOException, ClassNotFoundException{
+  private void handleAddButton() throws IOException, ClassNotFoundException{
     ModifyCustomerController.showDialog(stage, connection, null, "Add Customer");
     updateCustomers();
   }
 
-  @FXML
-  void handleModifyButton() throws IOException, ClassNotFoundException{
-    handleButton(false);
-  }
-  
-  @FXML
-  void handleDeleteButton() throws ClassNotFoundException, IOException {
-    handleButton(true);
-  }
-  
   private void handleButton(boolean delete) throws ClassNotFoundException, IOException{
     Customer customer = tableView.getSelectionModel().getSelectedItem(); 
     if (customer != null) {
@@ -70,14 +71,66 @@ public class CustomerController {
     }
   }
   
-  public void setStage(Stage stage) {
-    this.stage = stage;
+  @FXML
+  private void handleDeleteButton() throws ClassNotFoundException, IOException {
+    handleButton(true);
   }
   
+  @FXML
+  private void handleModifyButton() throws IOException, ClassNotFoundException{
+    handleButton(false);
+  }
+  
+  @FXML
+  private void initialize() throws IOException, ClassNotFoundException{
+    // Initialize the customer table
+    IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
+    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+    addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
+    
+  }
+  
+  private void updateCustomers() throws ClassNotFoundException{
+    ResultSet resultSet = getCustomersFromDataBase();
+    customers.clear();
+    try {
+      while (resultSet.next()) {
+        int customerID = resultSet.getInt("customerid");
+        String name = resultSet.getString("customerName");
+        int addressID = resultSet.getInt("addressId");
+        
+        Customer customer = new Customer(customerID, name, addressID);
+        customers.add(customer);
+      }
+      tableView.setItems(customers);
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+  
+  public ResultSet getCustomersFromDataBase() throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(
+        "SELECT customerid, customerName, addressId " + 
+        "FROM customer");
+
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+
   public void setConnection(Connection connection) {
     this.connection = connection;
   }
 
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
+  
   public static void showDialog(Stage primaryStage, Connection connection) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
@@ -103,57 +156,4 @@ public class CustomerController {
     stage.showAndWait();
   }
   
-  @FXML
-  private void initialize() throws IOException, ClassNotFoundException{
-    // Initialize the customer table
-    IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
-    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-    addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
-    
-  }
-  
-  public ResultSet getCustomersFromDataBase() throws ClassNotFoundException {
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery(
-        "SELECT customerid, customerName, addressId " + 
-        "FROM customer");
-
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    return resultSet;
-  }
-  
-  private void updateCustomers() throws ClassNotFoundException{
-    ResultSet resultSet = getCustomersFromDataBase();
-    customers.clear();
-    try {
-      while (resultSet.next()) {
-        Integer customerID = resultSet.getInt("customerid");
-        String name = resultSet.getString("customerName");
-        Integer addressID = resultSet.getInt("addressId");
-        
-        Customer customer = new Customer(customerID, name, addressID);
-        customers.add(customer);
-      }
-      tableView.setItems(customers);
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-  }
-  
-  private void deleteCustomer(Customer customer){
-     PreparedStatement preparedStatement;
-    try {
-      preparedStatement = connection.prepareStatement("DELETE FROM customer WHERE customerid =?");
-      preparedStatement.setString(1, Integer.toString(customer.getID()));
-      preparedStatement.execute();
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-  }
-
 }

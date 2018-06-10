@@ -10,16 +10,7 @@ public class User {
   private final StringProperty username;
   private final StringProperty password;
   
-
-  /**
-   * Constructor with some initial data.
-   * 
-   * @param userID
-   * @param username
-   * @param password
-   * 
-   */
-  public User(Integer userID, String username, String password) {
+  public User(int userID, String username, String password) {
     this.userID = new SimpleIntegerProperty(userID);
     this.username = new SimpleStringProperty(username);
     this.password = new SimpleStringProperty(password);

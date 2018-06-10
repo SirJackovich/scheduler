@@ -9,15 +9,7 @@ public class Type {
   private final IntegerProperty count;
   private final StringProperty type;
   
-
-  /**
-   * Constructor with some initial data.
-   * 
-   * @param count
-   * @param type
-   * 
-   */
-  public Type(Integer count, String type) {
+  public Type(int count, String type) {
     this.count = new SimpleIntegerProperty(count);
     this.type = new SimpleStringProperty(type);
   }

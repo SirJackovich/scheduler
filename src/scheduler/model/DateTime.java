@@ -25,23 +25,6 @@ public class DateTime {
     return time <= FIFTEEN_MINUTES;
   }
   
-  public static String makeDateUTC(String date){
-    // get the current timezone
-    ZoneId timeZone = ZoneId.systemDefault();
-    // turn the string date into a LocalDateTime
-    LocalDateTime dateLocalDateTime = LocalDateTime.parse(date, DATE_FORMATTER);
-    // turn the LocalDateTime into a ZonedDateTime
-    ZonedDateTime dateZonedDateTime = dateLocalDateTime.atZone(timeZone);
-    // get the UTC ZonedDateTime
-    ZonedDateTime UTCZonedDateTime = dateZonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
-    // turn the UTC ZonedDateTime into a UTC LocalDateTime
-    LocalDateTime UTCLocalDateTime = UTCZonedDateTime.toLocalDateTime();
-    // get the UTC Timestamp of the UTC LocalDateTime
-    Timestamp UTCTimestamp = Timestamp.valueOf(UTCLocalDateTime);
-    // return the UTC Timestamp in string form
-    return UTCTimestamp.toString();
-  }
-  
   public static String makeDateLocal(String date) throws ParseException{
     // create simpleDateFormat
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -59,4 +42,20 @@ public class DateTime {
     return formattedDate;
   }
   
+  public static String makeDateUTC(String date){
+    // get the current timezone
+    ZoneId timeZone = ZoneId.systemDefault();
+    // turn the string date into a LocalDateTime
+    LocalDateTime dateLocalDateTime = LocalDateTime.parse(date, DATE_FORMATTER);
+    // turn the LocalDateTime into a ZonedDateTime
+    ZonedDateTime dateZonedDateTime = dateLocalDateTime.atZone(timeZone);
+    // get the UTC ZonedDateTime
+    ZonedDateTime UTCZonedDateTime = dateZonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
+    // turn the UTC ZonedDateTime into a UTC LocalDateTime
+    LocalDateTime UTCLocalDateTime = UTCZonedDateTime.toLocalDateTime();
+    // get the UTC Timestamp of the UTC LocalDateTime
+    Timestamp UTCTimestamp = Timestamp.valueOf(UTCLocalDateTime);
+    // return the UTC Timestamp in string form
+    return UTCTimestamp.toString();
+  }
 }

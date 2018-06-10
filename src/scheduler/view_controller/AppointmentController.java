@@ -62,87 +62,6 @@ public class AppointmentController {
   @FXML
   private TextField endTextField;
 
-  @FXML
-  void handleCancelButton() {
-    stage.close();
-  }
-
-  @FXML
-  void handleSaveButton() {
-    if(isInputValid()){
-      if(this.appointmentID == null){
-        handleAppointment(true);
-      }else{
-        handleAppointment(false);
-      }
-    }
-  }
-  
-  public void setStage(Stage stage) {
-    this.stage = stage;
-  }
-  
-  public void setAppointment(Appointment appointment) {
-    if(appointment == null){
-      this.appointmentID = null;
-      titleTextField.setText("");
-      descriptionTextField.setText("");
-      locationTextField.setText("");
-      contactTextField.setText("");
-      typeTextField.setText("");
-      URLTextField.setText("");
-      startTextField.setText("");
-      endTextField.setText("");
-    }else{
-      this.appointmentID = Integer.toString(appointment.getID());
-      titleTextField.setText(appointment.getTitle());
-      descriptionTextField.setText(appointment.getDescription());
-      locationTextField.setText(appointment.getLocation());
-      contactTextField.setText(appointment.getContact());
-      typeTextField.setText(appointment.getType());
-      URLTextField.setText(appointment.getURL());
-      startTextField.setText(appointment.getStart());
-      endTextField.setText(appointment.getEnd());
-    }
-    
-  }
-  
-  public void setConnection(Connection connection) {
-    this.connection = connection;
-  }
-  
-  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title) throws IOException, ClassNotFoundException{
-    
-    // Load the fxml file and create a new stage for the popup dialog.
-    FXMLLoader loader = new FXMLLoader();
-    loader.setLocation(Scheduler.class.getResource("view_controller/Appointment.fxml"));
-    AnchorPane page = (AnchorPane) loader.load();
-
-    // Create the dialog Stage.
-    Stage stage = new Stage();
-    stage.setTitle(title);
-    stage.initModality(Modality.APPLICATION_MODAL);
-    stage.initOwner(primaryStage);
-    Scene scene = new Scene(page);
-    stage.setScene(scene);
-    
-    // set the stage so we can close it if needed
-    AppointmentController appointmentController = loader.getController();
-    appointmentController.setStage(stage);
-    appointmentController.setConnection(connection);
-    
-    if(appointment != null){
-      appointmentController.setAppointment(appointment);
-      appointmentController.fillComboBoxes(appointment);
-    }else{
-      appointmentController.setAppointment(null);
-      appointmentController.fillComboBoxes(null);
-    }
-    
-    // open the popup
-    stage.showAndWait();
-  }
-  
   private void fillComboBoxes(Appointment appointment) throws ClassNotFoundException {
     userIDComboBox.getItems().clear();
     userIDComboBox.getItems().addAll(getComboBoxItems("user", "userid"));
@@ -158,52 +77,6 @@ public class AppointmentController {
       //select the user and customer from the appointment
       userIDComboBox.getSelectionModel().select(appointment.getUserID() -1);
       customerIDComboBox.getSelectionModel().select(appointment.getCustomerID() -1);
-    }
-  }
-  
-  public  ArrayList<String> getComboBoxItems(String table, String column) throws ClassNotFoundException{
-    ResultSet resultSet = getDataFromDataBase("SELECT " + column + " FROM " + table);
-    ArrayList<String> items = new ArrayList<>();
-    try {
-      while (resultSet.next()) {
-        String item = resultSet.getString(column);
-        items.add(item);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    return items;
-  }
-  
-  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery(query);
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    return resultSet;
-  }
-  
-  private boolean isInputValid() {
-    String errorMessage = "";
-
-    DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
-    try {
-      Date start = DATE_FORMAT.parse(startTextField.getText());
-      Date end = DATE_FORMAT.parse(endTextField.getText());
-    } catch (ParseException ex) {
-      errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss)!\n";
-    }
-    
-    if (errorMessage.length() == 0) {
-      return true;
-    } else {
-      AlertDialog.errorDialog(errorMessage);
-      return false;
     }
   }
   
@@ -240,5 +113,132 @@ public class AppointmentController {
     }
     stage.close();
   }
+  
+  @FXML
+  private void handleCancelButton() {
+    stage.close();
+  }
 
-}
+  @FXML
+  private void handleSaveButton() {
+    if(isInputValid()){
+      if(this.appointmentID == null){
+        handleAppointment(true);
+      }else{
+        handleAppointment(false);
+      }
+    }
+  }
+  
+  private boolean isInputValid() {
+    String errorMessage = "";
+
+    DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    try {
+      Date start = DATE_FORMAT.parse(startTextField.getText());
+      Date end = DATE_FORMAT.parse(endTextField.getText());
+    } catch (ParseException ex) {
+      errorMessage += "No valid start or end (must be yyyy-MM-dd HH:mm:ss)!\n";
+    }
+    
+    if (errorMessage.length() == 0) {
+      return true;
+    } else {
+      AlertDialog.errorDialog(errorMessage);
+      return false;
+    }
+  }
+  
+  public  ArrayList<String> getComboBoxItems(String table, String column) throws ClassNotFoundException{
+    ResultSet resultSet = getDataFromDataBase("SELECT " + column + " FROM " + table);
+    ArrayList<String> items = new ArrayList<>();
+    try {
+      while (resultSet.next()) {
+        String item = resultSet.getString(column);
+        items.add(item);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return items;
+  }
+  
+  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  public void setAppointment(Appointment appointment) {
+    if(appointment == null){
+      this.appointmentID = null;
+      titleTextField.setText("");
+      descriptionTextField.setText("");
+      locationTextField.setText("");
+      contactTextField.setText("");
+      typeTextField.setText("");
+      URLTextField.setText("");
+      startTextField.setText("");
+      endTextField.setText("");
+    }else{
+      this.appointmentID = Integer.toString(appointment.getID());
+      titleTextField.setText(appointment.getTitle());
+      descriptionTextField.setText(appointment.getDescription());
+      locationTextField.setText(appointment.getLocation());
+      contactTextField.setText(appointment.getContact());
+      typeTextField.setText(appointment.getType());
+      URLTextField.setText(appointment.getURL());
+      startTextField.setText(appointment.getStart());
+      endTextField.setText(appointment.getEnd());
+    }
+    
+  }
+  
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+  
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
+  
+  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title) throws IOException, ClassNotFoundException{
+    
+    // Load the fxml file and create a new stage for the popup dialog.
+    FXMLLoader loader = new FXMLLoader();
+    loader.setLocation(Scheduler.class.getResource("view_controller/Appointment.fxml"));
+    AnchorPane page = (AnchorPane) loader.load();
+
+    // Create the dialog Stage.
+    Stage stage = new Stage();
+    stage.setTitle(title);
+    stage.initModality(Modality.APPLICATION_MODAL);
+    stage.initOwner(primaryStage);
+    Scene scene = new Scene(page);
+    stage.setScene(scene);
+    
+    // set the stage so we can close it if needed
+    AppointmentController appointmentController = loader.getController();
+    appointmentController.setStage(stage);
+    appointmentController.setConnection(connection);
+    
+    if(appointment != null){
+      appointmentController.setAppointment(appointment);
+      appointmentController.fillComboBoxes(appointment);
+    }else{
+      appointmentController.setAppointment(null);
+      appointmentController.fillComboBoxes(null);
+    }
+    
+    // open the popup
+    stage.showAndWait();
+  }
+  
+  }

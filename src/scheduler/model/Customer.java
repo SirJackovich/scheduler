@@ -11,15 +11,7 @@ public class Customer {
   private final IntegerProperty addressID;
   // private final StringProperty phone;
 
-  /**
-   * Constructor with some initial data.
-   * 
-   * @param customerID
-   * @param name
-   * @param addressID
-   * 
-   */
-  public Customer(Integer customerID, String name, Integer addressID) {
+  public Customer(int customerID, String name, int addressID) {
       this.customerID = new SimpleIntegerProperty(customerID);
       this.name = new SimpleStringProperty(name);
       this.addressID = new SimpleIntegerProperty(addressID);
@@ -46,11 +38,11 @@ public class Customer {
     return name;
   }
 
-  public void setAddressID(Integer addressID){
+  public void setAddressID(int addressID){
     this.addressID.set(addressID);
   }
 
-  public Integer getAddressID(){
+  public int getAddressID(){
     return this.addressID.get();
   }
     

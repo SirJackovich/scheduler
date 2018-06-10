@@ -33,13 +33,60 @@ public class ModifyCustomerController {
   @FXML
   private ComboBox<String> addressIDComboBox;
 
+  private void fillComboBox(Customer customer) throws ClassNotFoundException {
+    // get the addresses
+    ResultSet resultSet1 = getDataFromDataBase("SELECT addressid FROM address");
+    ArrayList<String> addresses = new ArrayList<>();
+    try {
+      while (resultSet1.next()) {
+        String addressID = resultSet1.getString("addressid");
+        addresses.add(addressID);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    addressIDComboBox.getItems().clear();
+    addressIDComboBox.getItems().addAll(addresses);
+    
+    if(customer == null){
+      addressIDComboBox.getSelectionModel().select(0);
+    }else{
+      addressIDComboBox.getSelectionModel().select(customer.getAddressID() -1);
+    }
+  }
+  
   @FXML
-  void handleCancelButton() {
+  private void handleCancelButton() {
+    stage.close();
+  }
+  
+  private void handleCustomer(boolean newCustomer){
+    PreparedStatement preparedStatement;
+    try {
+      if(newCustomer){
+        preparedStatement = connection.prepareStatement(
+        "INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdateBy) " +
+        "VALUES (?, ?, 1, CURDATE(), 'admin', 'admin')");
+      }else{
+        preparedStatement = connection.prepareStatement(
+        "UPDATE customer " +
+        "SET customerName=?, addressId=? " +
+        "WHERE customerid = ?");
+      }
+      preparedStatement.setString(1, nameTextField.getText());
+      preparedStatement.setString(2, addressIDComboBox.getValue());
+      if(!newCustomer){
+        preparedStatement.setString(3, customerID);
+      }
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
     stage.close();
   }
 
   @FXML
-  void handleSaveButton() {
+  private void handleSaveButton() {
     if(isInputValid()){
       if(this.customerID == null){
         handleCustomer(true);
@@ -49,8 +96,35 @@ public class ModifyCustomerController {
     }
   }
   
-  public void setStage(Stage stage) {
-    this.stage = stage;
+  private boolean isInputValid() {
+    String errorMessage = "";
+
+    if (nameTextField.getText() == null || nameTextField.getText().length() == 0) {
+      errorMessage += "No valid name!\n"; 
+    }
+    
+    if (errorMessage.length() == 0) {
+      return true;
+    } else {
+      AlertDialog.errorDialog(errorMessage);
+      return false;
+    }
+  }
+  
+  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  public void setConnection(Connection connection) {
+    this.connection = connection;
   }
   
   public void setCustomer(Customer customer) {
@@ -63,8 +137,8 @@ public class ModifyCustomerController {
     }
   }
   
-  public void setConnection(Connection connection) {
-    this.connection = connection;
+  public void setStage(Stage stage) {
+    this.stage = stage;
   }
   
   public static void showDialog(Stage primaryStage, Connection connection, Customer customer, String title) throws IOException, ClassNotFoundException{
@@ -98,79 +172,4 @@ public class ModifyCustomerController {
     // open the popup
     stage.showAndWait();
   }
-  
-    private void fillComboBox(Customer customer) throws ClassNotFoundException {
-    // get the addresses
-    ResultSet resultSet1 = getDataFromDataBase("SELECT addressid FROM address");
-    ArrayList<String> addresses = new ArrayList<>();
-    try {
-      while (resultSet1.next()) {
-        String addressID = resultSet1.getString("addressid");
-        addresses.add(addressID);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    addressIDComboBox.getItems().clear();
-    addressIDComboBox.getItems().addAll(addresses);
-    
-    if(customer == null){
-      addressIDComboBox.getSelectionModel().select(0);
-    }else{
-      addressIDComboBox.getSelectionModel().select(customer.getAddressID() -1);
-    }
-  }
-    
-  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery(query);
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    return resultSet;
-  }
-  
-  private boolean isInputValid() {
-    String errorMessage = "";
-
-    if (nameTextField.getText() == null || nameTextField.getText().length() == 0) {
-      errorMessage += "No valid name!\n"; 
-    }
-    
-    if (errorMessage.length() == 0) {
-      return true;
-    } else {
-      AlertDialog.errorDialog(errorMessage);
-      return false;
-    }
-  }
-  
-  private void handleCustomer(boolean newCustomer){
-    PreparedStatement preparedStatement;
-    try {
-      if(newCustomer){
-        preparedStatement = connection.prepareStatement(
-        "INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdateBy) " +
-        "VALUES (?, ?, 1, CURDATE(), 'admin', 'admin')");
-      }else{
-        preparedStatement = connection.prepareStatement(
-        "UPDATE customer " +
-        "SET customerName=?, addressId=? " +
-        "WHERE customerid = ?");
-      }
-      preparedStatement.setString(1, nameTextField.getText());
-      preparedStatement.setString(2, addressIDComboBox.getValue());
-      if(!newCustomer){
-        preparedStatement.setString(3, customerID);
-      }
-      preparedStatement.execute();
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    stage.close();
-  }
-
 }

@@ -12,8 +12,12 @@ public class Scheduler extends Application {
   private Stage stage;
   private BorderPane calendarLayout;
   
-  public Scheduler(){
-    // setup databse connection stuff
+  public Stage getStage() {
+    return stage;
+  }
+
+  public static void main(String[] args) {
+    launch(args);
   }
   
   @Override
@@ -38,16 +42,4 @@ public class Scheduler extends Application {
     stage.setScene(scene);
     stage.show();
   }
-  
-  public Stage getStage() {
-    return stage;
-  }
-
-  /**
-   * @param args the command line arguments
-   */
-  public static void main(String[] args) {
-    launch(args);
-  }
-  
 }

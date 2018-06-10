@@ -55,24 +55,8 @@ public class ReportsController {
 
   @FXML
   private TableColumn tableColumn4;
-
-  @FXML
-  void handleGenerateButton() throws ClassNotFoundException, ParseException {
-    String type = typeComboBox.getValue();
-    switch(type){
-      case "Appointments by Month":
-        appointmentsByMonth();
-        break;
-      case "Consultant Schedule":
-        consultantSchedule();
-        break;
-      case "Customer Schedule":
-        customerSchedule();
-        break;
-    }
-  }
   
-  public void appointmentsByMonth() throws ClassNotFoundException{
+  private void appointmentsByMonth() throws ClassNotFoundException{
     ObservableList<Type> table = FXCollections.observableArrayList();
     ResultSet resultSet = getDataFromDataBase("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
     tableColumn1.setText("Type");
@@ -96,7 +80,7 @@ public class ReportsController {
     try {
       while (resultSet.next()) {
         String type = resultSet.getString("type");
-        Integer count = resultSet.getInt("count");
+        int count = resultSet.getInt("count");
         
         Type type2 = new Type(count, type);
         table.add(type2);
@@ -107,15 +91,15 @@ public class ReportsController {
     }
   }
   
-  public void consultantSchedule() throws ClassNotFoundException, ParseException{
+  private void consultantSchedule() throws ClassNotFoundException, ParseException{
     fillCallendar(true);
   }
   
-  public void customerSchedule() throws ClassNotFoundException, ParseException{
+  private void customerSchedule() throws ClassNotFoundException, ParseException{
     fillCallendar(false);
   }
     
-  public void fillCallendar(boolean consultant) throws ClassNotFoundException, ParseException{
+  private void fillCallendar(boolean consultant) throws ClassNotFoundException, ParseException{
     tableColumn1.setText("Time");
     tableColumn2.setText("Name");
     tableColumn3.setText("Type");
@@ -161,12 +145,12 @@ public class ReportsController {
     
     try {
       while (resultSet.next()) {
-        Integer appointmentID = resultSet.getInt("appointmentid");
+        int appointmentID = resultSet.getInt("appointmentid");
         String start = DateTime.makeDateLocal(resultSet.getString("start"));
         String title = resultSet.getString("title");
         String type = resultSet.getString("type");
-        Integer customerID = resultSet.getInt("customerId");
-        Integer userId = resultSet.getInt("userId");
+        int customerID = resultSet.getInt("customerId");
+        int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
@@ -181,8 +165,55 @@ public class ReportsController {
     }
   }
 
+  private void fillComboBox(String type, String query, String columnName) throws ClassNotFoundException{
+    personLabel.setText(type);
+    personLabel.setDisable(false);
+    personComboBox.setDisable(false);
+    ResultSet resultSet = getDataFromDataBase(query);
+    ArrayList<String> list = new ArrayList<>();
+    try {
+      while (resultSet.next()) {
+        String item = resultSet.getString(columnName);
+        list.add(item);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    personComboBox.getItems().clear();
+    personComboBox.getItems().addAll(list);
+    personComboBox.getSelectionModel().select(0);
+  }
+
+  private ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(query);
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+ 
   @FXML
-  void handleTypeComboBox() throws ClassNotFoundException {
+  private void handleGenerateButton() throws ClassNotFoundException, ParseException {
+    String type = typeComboBox.getValue();
+    switch(type){
+      case "Appointments by Month":
+        appointmentsByMonth();
+        break;
+      case "Consultant Schedule":
+        consultantSchedule();
+        break;
+      case "Customer Schedule":
+        customerSchedule();
+        break;
+    }
+  }
+  
+  @FXML
+  private void handleTypeComboBox() throws ClassNotFoundException {
     String type = typeComboBox.getValue();
     switch(type){
       case "Appointments by Month":
@@ -198,6 +229,22 @@ public class ReportsController {
     } 
   }
 
+  @FXML
+  private void initialize() throws IOException, ClassNotFoundException{
+    typeComboBox.getItems().addAll("Appointments by Month", "Consultant Schedule", "Customer Schedule");
+    typeComboBox.getSelectionModel().select(0);
+    personComboBox.setDisable(true);
+    personLabel.setDisable(true);
+  }
+   
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+  
+  public void setStage(Stage stage) {
+    this.stage = stage;
+  }
+  
   public static void showDialog(Stage primaryStage, Connection connection) throws IOException{
     
     // Load the fxml file and create a new stage for the popup dialog.
@@ -220,52 +267,5 @@ public class ReportsController {
     
     // open the popup
     stage.showAndWait();
-  }
-
-  public void setStage(Stage stage) {
-    this.stage = stage;
-  }
-  
-   @FXML
-  private void initialize() throws IOException, ClassNotFoundException{
-    typeComboBox.getItems().addAll("Appointments by Month", "Consultant Schedule", "Customer Schedule");
-    typeComboBox.getSelectionModel().select(0);
-    personComboBox.setDisable(true);
-    personLabel.setDisable(true);
-  }
-  
-  public ResultSet getDataFromDataBase(String query) throws ClassNotFoundException {
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery(query);
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    return resultSet;
-  }
-  
-  public void setConnection(Connection connection) {
-    this.connection = connection;
-  }
-  
-  private void fillComboBox(String type, String query, String columnName) throws ClassNotFoundException{
-    personLabel.setText(type);
-    personLabel.setDisable(false);
-    personComboBox.setDisable(false);
-    ResultSet resultSet = getDataFromDataBase(query);
-    ArrayList<String> list = new ArrayList<>();
-    try {
-      while (resultSet.next()) {
-        String item = resultSet.getString(columnName);
-        list.add(item);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    personComboBox.getItems().clear();
-    personComboBox.getItems().addAll(list);
-    personComboBox.getSelectionModel().select(0);
   }
 }

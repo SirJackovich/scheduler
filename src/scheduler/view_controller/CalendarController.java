@@ -52,7 +52,55 @@ public class CalendarController {
 
   @FXML
   private TableColumn<Appointment, Integer> customerTableColumn;
+  
+  private void deleteAppointment(Appointment appointment){
+     PreparedStatement preparedStatement;
+    try {
+      preparedStatement = connection.prepareStatement("DELETE FROM appointment WHERE appointmentid =?");
+      preparedStatement.setString(1, Integer.toString(appointment.getID()));
+      preparedStatement.execute();
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+  }
 
+  private ResultSet getAppointmentsFromDataBase(){
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery(
+      "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
+      "FROM appointment " +
+      "WHERE start >='" + DateTime.makeDateUTC(today) + "' " +
+      "AND start <'" + DateTime.makeDateUTC(tomorrow) + "' " +
+      "ORDER BY start");
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    return resultSet;
+  }
+  
+  @FXML
+  private void handleAddButton() throws IOException, ClassNotFoundException, ParseException{
+    AppointmentController.showDialog(stage, connection, null, "Add Appointment");
+    updateCalendar(false);
+  }
+  
+  private void handleButton(boolean delete) throws ParseException, IOException, ClassNotFoundException{
+    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
+    if (appointment != null) {
+      if(delete){
+        deleteAppointment(appointment);
+      }else{
+        AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
+      }
+      updateCalendar(false);
+    } else {
+      AlertDialog.noSelectionDialog("appointment");
+    }
+  }
+  
   @FXML
   private void handleComboBox() throws ParseException {
     Calendar cal = Calendar.getInstance();
@@ -73,9 +121,8 @@ public class CalendarController {
   }
   
   @FXML
-  private void handleAddButton() throws IOException, ClassNotFoundException, ParseException{
-    AppointmentController.showDialog(stage, connection, null, "Add Appointment");
-    updateCalendar(false);
+  private void handleDeleteButton() throws ParseException, IOException, ClassNotFoundException {    
+    handleButton(true);
   }
   
   @FXML
@@ -84,19 +131,10 @@ public class CalendarController {
   }
   
   @FXML
-  private void handleDeleteButton() throws ParseException, IOException, ClassNotFoundException {    
-    handleButton(true);
-  }
-  
-  @FXML
   private void handleReportButton() throws IOException{
     ReportsController.showDialog(stage, connection);
   }
   
-  public void setStage(Stage stage){
-    this.stage = stage;
-  }
-
   @FXML
   private void initialize() throws IOException, ClassNotFoundException, ParseException{
     // Initialize the appointment table
@@ -130,23 +168,6 @@ public class CalendarController {
       alert.setContentText(reminder);
       alert.showAndWait();
     }
-  }
-  
-  private ResultSet getAppointmentsFromDataBase(){
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery(
-      "SELECT appointmentid, start, title, type, customerId, userId, description, location, contact, url, end " +
-      "FROM appointment " +
-      "WHERE start >='" + DateTime.makeDateUTC(today) + "' " +
-      "AND start <'" + DateTime.makeDateUTC(tomorrow) + "' " +
-      "ORDER BY start");
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    return resultSet;
   }
   
   private void makeConnection(){
@@ -194,29 +215,7 @@ public class CalendarController {
     }
   }
   
-  private void deleteAppointment(Appointment appointment){
-     PreparedStatement preparedStatement;
-    try {
-      preparedStatement = connection.prepareStatement("DELETE FROM appointment WHERE appointmentid =?");
-      preparedStatement.setString(1, Integer.toString(appointment.getID()));
-      preparedStatement.execute();
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
+  public void setStage(Stage stage){
+    this.stage = stage;
   }
-  
-  private void handleButton(boolean delete) throws ParseException, IOException, ClassNotFoundException{
-    Appointment appointment = calendarTableView.getSelectionModel().getSelectedItem(); 
-    if (appointment != null) {
-      if(delete){
-        deleteAppointment(appointment);
-      }else{
-        AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
-      }
-      updateCalendar(false);
-    } else {
-      AlertDialog.noSelectionDialog("appointment");
-    }
-  }
-  
 }

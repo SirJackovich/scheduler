@@ -25,7 +25,7 @@ public class LoginController {
   
   private Stage stage;
   private Connection connection;
-  private Boolean auth = false;
+  private boolean auth = false;
   
   @FXML
   private TextField usernameTextField;
@@ -33,8 +33,32 @@ public class LoginController {
   @FXML
   private TextField passwordField;
 
+  private ObservableList<User> getUsers(){
+    ResultSet resultSet = null;
+    Statement statement;
+    try {
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery("Select userid, userName, password from user");
+    } catch (SQLException ex) {
+      ex.printStackTrace();
+    }
+    ObservableList<User> users = FXCollections.observableArrayList();
+    try {
+      while (resultSet.next()) {
+        int userID = resultSet.getInt("userid");
+        String username = resultSet.getString("userName");
+        String password = resultSet.getString("password");
+        User user = new User(userID, username, password);
+        users.add(user);
+      }
+    } catch (SQLException ex) {
+        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return users;
+  }
+
   @FXML
-  void handleLogin() {
+  private void handleLogin() {
     auth = false;
     // default username and password is "test"
     String username = usernameTextField.getText();
@@ -59,43 +83,19 @@ public class LoginController {
     }
   }
   
-  public void setStage(Stage stage) {
-    this.stage = stage;
+  public boolean getAuth(){
+    return auth;
   }
   
   public void setConnection(Connection connection) {
     this.connection = connection;
   }
   
-  public Boolean getAuth(){
-    return auth;
+  public void setStage(Stage stage) {
+    this.stage = stage;
   }
   
-  private ObservableList<User> getUsers(){
-    ResultSet resultSet = null;
-    Statement statement;
-    try {
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery("Select userid, userName, password from user");
-    } catch (SQLException ex) {
-      ex.printStackTrace();
-    }
-    ObservableList<User> users = FXCollections.observableArrayList();
-    try {
-      while (resultSet.next()) {
-        Integer userID = resultSet.getInt("userid");
-        String username = resultSet.getString("userName");
-        String password = resultSet.getString("password");
-        User user = new User(userID, username, password);
-        users.add(user);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    return users;
-  }
-
-  public static Boolean showDialog(Stage primaryStage, Connection connection) throws IOException{
+  public static boolean showDialog(Stage primaryStage, Connection connection) throws IOException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
