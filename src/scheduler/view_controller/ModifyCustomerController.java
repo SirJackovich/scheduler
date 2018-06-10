@@ -31,29 +31,22 @@ public class ModifyCustomerController {
   private TextField nameTextField;
 
   @FXML
-  private ComboBox<String> addressIDComboBox;
-
-  private void fillComboBox(Customer customer) throws ClassNotFoundException {
-    // get the addresses
-    ResultSet resultSet1 = getDataFromDataBase("SELECT addressid FROM address");
-    ArrayList<String> addresses = new ArrayList<>();
-    try {
-      while (resultSet1.next()) {
-        String addressID = resultSet1.getString("addressid");
-        addresses.add(addressID);
-      }
-    } catch (SQLException ex) {
-        Logger.getLogger(CalendarController.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    addressIDComboBox.getItems().clear();
-    addressIDComboBox.getItems().addAll(addresses);
-    
-    if(customer == null){
-      addressIDComboBox.getSelectionModel().select(0);
-    }else{
-      addressIDComboBox.getSelectionModel().select(customer.getAddressID() -1);
-    }
-  }
+  private TextField phoneTextField;
+  
+  @FXML
+  private TextField addressTextField;
+  
+  @FXML
+  private TextField address2TextField;
+  
+  @FXML
+  private TextField cityTextField;
+  
+  @FXML
+  private TextField countryTextField;
+  
+  @FXML
+  private TextField postalCodeTextField;
   
   @FXML
   private void handleCancelButton() {
