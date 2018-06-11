@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -44,7 +47,16 @@ public class LoginController {
 
   @FXML
   private TextField passwordField;
-
+  
+  @FXML
+  private Label usernameLabel;
+  
+  @FXML
+  private Label passwordLabel;
+  
+  @FXML
+  private Button loginButton;
+  
   private ObservableList<User> getUsers(){
     ObservableList<User> users = FXCollections.observableArrayList();
     try (Statement statement = connection.createStatement();
@@ -79,13 +91,11 @@ public class LoginController {
       }
 		}
     if("".equals(auth)){
-      // Language testing
-      // Locale.setDefault(new Locale("es", "ES"));
-      
-      ResourceBundle rb = ResourceBundle.getBundle("locales/scheduler");
+      ResourceBundle resourceBundle = ResourceBundle.getBundle("locales/scheduler");
       Alert alert = new Alert(Alert.AlertType.ERROR);
-      alert.setTitle(rb.getString("title"));
-      alert.setContentText(rb.getString("message"));
+      alert.setTitle(resourceBundle.getString("title"));
+      alert.setHeaderText("");
+      alert.setContentText(resourceBundle.getString("message"));
       alert.showAndWait();
     }else{
       Calendar cal = Calendar.getInstance();	
@@ -116,6 +126,11 @@ public class LoginController {
   
   public static String showDialog(Stage primaryStage, Connection connection) throws IOException{
     
+    // Language testing
+    // Locale.setDefault(new Locale("es", "ES"));
+    // Locale.setDefault(new Locale("fr", "FR"));
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("locales/scheduler");
+    
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
     loader.setLocation(Scheduler.class.getResource("view_controller/Login.fxml"));
@@ -123,7 +138,7 @@ public class LoginController {
 
     // Create the dialog Stage.
     Stage stage = new Stage();
-    stage.setTitle("Login");
+    stage.setTitle(resourceBundle.getString("login"));
     stage.initModality(Modality.APPLICATION_MODAL);
     stage.initOwner(primaryStage);
     Scene scene = new Scene(page);
@@ -139,5 +154,13 @@ public class LoginController {
     
     // return if the user is authorized or not
     return loginController.getAuth();
+  }
+  
+  @FXML
+  private void initialize(){
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("locales/scheduler");
+    usernameLabel.setText(resourceBundle.getString("username"));
+    passwordLabel.setText(resourceBundle.getString("password"));
+    loginButton.setText(resourceBundle.getString("login"));
   }
 }

@@ -167,14 +167,14 @@ public class ReportsController {
         String type = resultSet.getString("type");
         String customerName = resultSet.getString("customerName");
         int customerID = resultSet.getInt("customerId");
-        String userName = resultSet.getString("userName");
+        String username = resultSet.getString("userName");
         int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(appointmentID, start, title, type, customerName, customerID, userName, userId, description, location, contact, URL, end);
+        Appointment appointment = new Appointment(appointmentID, start, title, type, customerName, customerID, username, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
       tableView.setItems(calendar);

@@ -12,11 +12,11 @@
    <children>
       <VBox alignment="CENTER" layoutX="85.0" layoutY="52.0" prefHeight="200.0" prefWidth="223.0" spacing="11.0">
          <children>
-            <Label text="Username:" />
+            <Label fx:id="usernameLabel" />
             <TextField fx:id="usernameTextField" />
-            <Label text="Password:" />
+            <Label fx:id="passwordLabel" />
             <PasswordField fx:id="passwordField" />
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" text="Login" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" />
          </children>
          <opaqueInsets>
             <Insets />

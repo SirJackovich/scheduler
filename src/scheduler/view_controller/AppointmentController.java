@@ -219,7 +219,7 @@ public class AppointmentController {
         Calendar night = Calendar.getInstance();
         night.setTime(DATE_FORMAT.parse(appointment.getEnd()));
         
-        if((starttime.after(morning) && starttime.before(night)) || (endtime.after(morning) && endtime.before(night))){
+        if(((starttime.compareTo(morning) >= 0) && (starttime.compareTo(night) <= 0)) || ((endtime.compareTo(morning) >= 0) && (endtime.compareTo(night) <= 0))){
           overlap = true;
         }
       } catch (ParseException ex) {
@@ -256,14 +256,14 @@ public class AppointmentController {
         String type = resultSet.getString("type");
         String customerName = resultSet.getString("customerName");
         int customerID = resultSet.getInt("customerId");
-        String userName = resultSet.getString("userName");
+        String username = resultSet.getString("userName");
         int userId = resultSet.getInt("userId");
         String description = resultSet.getString("description");
         String location = resultSet.getString("location");
         String contact = resultSet.getString("contact");
         String URL = resultSet.getString("url");
         String end = DateTime.makeDateLocal(resultSet.getString("end"));
-        Appointment appointment = new Appointment(apptID, start, title, type, customerName, customerID, userName, userId, description, location, contact, URL, end);
+        Appointment appointment = new Appointment(apptID, start, title, type, customerName, customerID, username, userId, description, location, contact, URL, end);
         calendar.add(appointment);
       }
     } catch (SQLException ex) {
