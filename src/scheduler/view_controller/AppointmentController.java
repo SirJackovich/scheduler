@@ -37,10 +37,10 @@ public class AppointmentController {
   private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   @FXML
-  private ComboBox<String> userIDComboBox;
+  private ComboBox<String> userNameComboBox;
 
   @FXML
-  private ComboBox<String> customerIDComboBox;
+  private ComboBox<String> customerNameComboBox;
 
   @FXML
   private TextField titleTextField;
@@ -67,26 +67,28 @@ public class AppointmentController {
   private TextField endTextField;
 
   private void fillComboBoxes(Appointment appointment) throws ClassNotFoundException {
-    userIDComboBox.getItems().clear();
-    userIDComboBox.getItems().addAll(getComboBoxItems("user", "userid"));
+    userNameComboBox.getItems().clear();
+    userNameComboBox.getItems().addAll(getComboBoxItems("user", "userName"));
     
-    customerIDComboBox.getItems().clear();
-    customerIDComboBox.getItems().addAll(getComboBoxItems("customer", "customerid"));
+    customerNameComboBox.getItems().clear();
+    customerNameComboBox.getItems().addAll(getComboBoxItems("customer", "customerName"));
     
     if(appointment == null){
       // select the first in each list
-      userIDComboBox.getSelectionModel().select(0);
-      customerIDComboBox.getSelectionModel().select(0);
+      userNameComboBox.getSelectionModel().select(0);
+      customerNameComboBox.getSelectionModel().select(0);
     }else{
       //select the user and customer from the appointment
-      userIDComboBox.getSelectionModel().select(appointment.getUserID() -1);
-      customerIDComboBox.getSelectionModel().select(appointment.getCustomerID() -1);
+      userNameComboBox.getSelectionModel().select(appointment.getUserName());
+      customerNameComboBox.getSelectionModel().select(appointment.getCustomerName());
     }
   }
   
   private void handleAppointment(boolean newAppointment){
     PreparedStatement preparedStatement;
     try {
+      String userID = getID("user", "userid", "userName", userNameComboBox.getValue());
+      String customerID = getID("customer", "customerid", "customerName", customerNameComboBox.getValue());
       if(newAppointment){
         preparedStatement = connection.prepareStatement(
         "INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdateBy)" +
@@ -98,8 +100,8 @@ public class AppointmentController {
         "WHERE appointmentid = ?");
       }
       
-      preparedStatement.setString(1, customerIDComboBox.getValue());
-      preparedStatement.setString(2, userIDComboBox.getValue());
+      preparedStatement.setString(1, customerID);
+      preparedStatement.setString(2, userID);
       preparedStatement.setString(3, titleTextField.getText());
       preparedStatement.setString(4, descriptionTextField.getText());
       preparedStatement.setString(5, locationTextField.getText());
@@ -116,6 +118,17 @@ public class AppointmentController {
       ex.printStackTrace();
     }
     stage.close();
+  }
+  
+  private String getID(String table, String idCol, String nameCol, String name) throws SQLException{
+    PreparedStatement preparedStatement;
+    preparedStatement = connection.prepareStatement("SELECT " + idCol + " FROM " + table + " WHERE " + nameCol + "='"+ name + "' ");
+    ResultSet resultSet = preparedStatement.executeQuery();
+    int id = 0;
+    if (resultSet.next()) {
+      id = resultSet.getInt(1);
+    }
+    return Integer.toString(id);
   }
   
   @FXML
@@ -218,14 +231,14 @@ public class AppointmentController {
     if(customers){
       resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
               "FROM appointment, customer, user " +
-              "WHERE appointment.customerId=" + customerIDComboBox.getValue() + " " +
+              "WHERE customer.customerName='" + customerNameComboBox.getValue() + "' " +
               "AND appointment.userId = user.userid " +
               "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start");
     }else{
       resultSet = getDataFromDataBase("SELECT appointmentid, start, title, type, customerName, appointment.customerId, userName, appointment.userId, description, location, contact, url, end " +
               "FROM appointment, customer, user " +
-              "WHERE appointment.userId=" + userIDComboBox.getValue() + " " +
+              "WHERE user.userName='" + userNameComboBox.getValue() + "' " +
               "AND appointment.userId = user.userid " +
               "AND appointment.customerId = customer.customerid " + 
               "ORDER BY start");

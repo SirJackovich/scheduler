@@ -30,8 +30,8 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="Consultant ID" />
-            <Label text="Customer ID" GridPane.rowIndex="1" />
+            <Label text="Consultant" />
+            <Label text="Customer" GridPane.rowIndex="1" />
             <Label text="Title" GridPane.rowIndex="2" />
             <Label text="Description" GridPane.rowIndex="3" />
             <Label text="Location" GridPane.rowIndex="4" />
@@ -50,8 +50,8 @@
             <TextField fx:id="URLTextField" GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <TextField fx:id="endTextField" promptText="yyyy-MM-dd HH:mm:ss" GridPane.columnIndex="1" GridPane.rowIndex="9" />
             <TextField fx:id="startTextField" promptText="yyyy-MM-dd HH:mm:ss" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <ComboBox fx:id="userIDComboBox" prefWidth="150.0" GridPane.columnIndex="1" />
-            <ComboBox fx:id="customerIDComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <ComboBox fx:id="userNameComboBox" prefWidth="150.0" GridPane.columnIndex="1" />
+            <ComboBox fx:id="customerNameComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
          </children>
       </GridPane>
    </children>
