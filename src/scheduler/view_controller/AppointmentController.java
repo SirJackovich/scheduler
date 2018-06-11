@@ -34,6 +34,7 @@ public class AppointmentController {
   private Stage stage;
   private Connection connection;
   private String appointmentID;
+  private String userName = "";
   private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   @FXML
@@ -92,11 +93,11 @@ public class AppointmentController {
       if(newAppointment){
         preparedStatement = connection.prepareStatement(
         "INSERT INTO appointment (customerId, userId, title, description, location, contact, type, url, start, end, createDate, createdBy, lastUpdateBy)" +
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), 'admin', 'admin')");
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), ?, ?)");
       }else{
         preparedStatement = connection.prepareStatement(
         "UPDATE appointment " +
-        "SET customerId=?, userId=?, title=?, description=?, location=?, contact=?, type=?, url=?, start=?, end=? " +
+        "SET customerId=?, userId=?, title=?, description=?, location=?, contact=?, type=?, url=?, start=?, end=?, lastUpdateBy=?" +
         "WHERE appointmentid = ?");
       }
       
@@ -110,8 +111,11 @@ public class AppointmentController {
       preparedStatement.setString(8, URLTextField.getText());
       preparedStatement.setString(9, DateTime.makeDateUTC(startTextField.getText()));
       preparedStatement.setString(10, DateTime.makeDateUTC(endTextField.getText()));
-      if(!newAppointment){
-        preparedStatement.setString(11, this.appointmentID);
+      preparedStatement.setString(11, this.userName);
+      if(newAppointment){
+        preparedStatement.setString(12, this.userName);
+      }else {
+        preparedStatement.setString(12, this.appointmentID);
       }
       preparedStatement.execute();
     } catch (SQLException ex) {
@@ -327,7 +331,11 @@ public class AppointmentController {
     this.stage = stage;
   }
   
-  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title) throws IOException, ClassNotFoundException{
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+  
+  public static void showDialog(Stage primaryStage, Connection connection, Appointment appointment, String title, String userName) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -346,6 +354,7 @@ public class AppointmentController {
     AppointmentController appointmentController = loader.getController();
     appointmentController.setStage(stage);
     appointmentController.setConnection(connection);
+    appointmentController.setUserName(userName);
     
     if(appointment != null){
       appointmentController.setAppointment(appointment);

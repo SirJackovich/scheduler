@@ -34,6 +34,7 @@ public class CalendarController {
   private String tomorrow;
   private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private String reminder = "";
+  private String userName = "";
   
   @FXML
   private ComboBox<String> viewComboBox;
@@ -91,7 +92,7 @@ public class CalendarController {
   
   @FXML
   private void handleAddButton() throws IOException, ClassNotFoundException, ParseException{
-    AppointmentController.showDialog(stage, connection, null, "Add Appointment");
+    AppointmentController.showDialog(stage, connection, null, "Add Appointment", userName);
     updateCalendar(false);
   }
   
@@ -101,7 +102,7 @@ public class CalendarController {
       if(delete){
         deleteAppointment(appointment);
       }else{
-        AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment");
+        AppointmentController.showDialog(stage, connection, appointment, "Modify Appointment", userName);
       }
       updateCalendar(false);
     } else {
@@ -124,7 +125,7 @@ public class CalendarController {
   
   @FXML
   private void handleCustomerButton() throws IOException, ClassNotFoundException, ParseException{
-    CustomerController.showDialog(stage, connection);
+    CustomerController.showDialog(stage, connection, userName);
     updateCalendar(false);
   }
   
@@ -172,7 +173,8 @@ public class CalendarController {
     updateCalendar(true);
     
     // show the login dialog
-    if(!LoginController.showDialog(stage, connection)){
+    userName = LoginController.showDialog(stage, connection);
+    if("".equals(userName)){
       Platform.exit();
     }else if(!reminder.equals("")){
       Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

@@ -36,7 +36,7 @@ public class LoginController {
   
   private Stage stage;
   private Connection connection;
-  private boolean auth = false;
+  private String auth = "";
   private final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   
   @FXML
@@ -68,17 +68,26 @@ public class LoginController {
 
   @FXML
   private void handleLogin() throws IOException {
-    auth = false;
+    auth = "";
     // default username and password is "test"
     String username = usernameTextField.getText();
     String password = passwordField.getText();
     ObservableList<User> users = getUsers();
     for (User user : users) {
 			if(user.getUsername().equals(username) && user.getPassword().equals(password)){
-        auth = true;
+        auth = username;
       }
 		}
-    if(auth){
+    if("".equals(auth)){
+      // Language testing
+      // Locale.setDefault(new Locale("es", "ES"));
+      
+      ResourceBundle rb = ResourceBundle.getBundle("locales/scheduler");
+      Alert alert = new Alert(Alert.AlertType.ERROR);
+      alert.setTitle(rb.getString("title"));
+      alert.setContentText(rb.getString("message"));
+      alert.showAndWait();
+    }else{
       Calendar cal = Calendar.getInstance();	
       String time = DATE_FORMAT.format(cal.getTime());
       List<String> lines = Arrays.asList(time + " User: " + username + " logged in.");
@@ -90,19 +99,10 @@ public class LoginController {
       }
       Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
       stage.close();
-    }else{
-      // Language testing
-      // Locale.setDefault(new Locale("es", "ES"));
-      
-      ResourceBundle rb = ResourceBundle.getBundle("locales/scheduler");
-      Alert alert = new Alert(Alert.AlertType.ERROR);
-      alert.setTitle(rb.getString("title"));
-      alert.setContentText(rb.getString("message"));
-      alert.showAndWait();
     }
   }
   
-  public boolean getAuth(){
+  public String getAuth(){
     return auth;
   }
   
@@ -114,7 +114,7 @@ public class LoginController {
     this.stage = stage;
   }
   
-  public static boolean showDialog(Stage primaryStage, Connection connection) throws IOException{
+  public static String showDialog(Stage primaryStage, Connection connection) throws IOException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();

@@ -26,6 +26,7 @@ public class CustomerController {
   
   private Stage stage;
   private Connection connection;
+  private String userName = "";
   private final ObservableList<Customer> customers = FXCollections.observableArrayList();
 
   @FXML
@@ -67,7 +68,7 @@ public class CustomerController {
 
   @FXML
   private void handleAddButton() throws IOException, ClassNotFoundException{
-    ModifyCustomerController.showDialog(stage, connection, null, "Add Customer");
+    ModifyCustomerController.showDialog(stage, connection, null, "Add Customer", userName);
     updateCustomers();
   }
 
@@ -77,7 +78,7 @@ public class CustomerController {
       if(delete){
         deleteCustomer(customer);
       }else{
-        ModifyCustomerController.showDialog(stage, connection, customer, "Modify Customer");
+        ModifyCustomerController.showDialog(stage, connection, customer, "Modify Customer", userName);
       }
       updateCustomers();
     } else {
@@ -156,7 +157,11 @@ public class CustomerController {
     this.stage = stage;
   }
   
-  public static void showDialog(Stage primaryStage, Connection connection) throws IOException, ClassNotFoundException{
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+  
+  public static void showDialog(Stage primaryStage, Connection connection, String userName) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -175,6 +180,7 @@ public class CustomerController {
     CustomerController customerController = loader.getController();
     customerController.setStage(stage);
     customerController.setConnection(connection);
+    customerController.setUserName(userName);
     customerController.updateCustomers();
     
     // open the popup

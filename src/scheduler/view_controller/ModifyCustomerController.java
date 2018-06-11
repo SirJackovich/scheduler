@@ -23,6 +23,7 @@ public class ModifyCustomerController {
   private Connection connection;
   private String customerID;
   private String addressID;
+  private String userName = "";
 
   @FXML
   private TextField nameTextField;
@@ -59,20 +60,23 @@ public class ModifyCustomerController {
         handleAddress(cityID, false);
         preparedStatement = connection.prepareStatement(
         "INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdateBy) " +
-        "VALUES (?, ?, 1, CURDATE(), 'admin', 'admin')");
+        "VALUES (?, ?, 1, CURDATE(), ?, ?)");
       }else{
         int countryID = handleCountry();
         int cityID = handleCity(countryID);
         handleAddress(cityID, true);
         preparedStatement = connection.prepareStatement(
         "UPDATE customer " +
-        "SET customerName=?, addressId=? " +
+        "SET customerName=?, addressId=?, lastUpdateBy=? " +
         "WHERE customerid = ?");
       }
       preparedStatement.setString(1, nameTextField.getText());
       preparedStatement.setString(2, addressID);
-      if(!newCustomer){
-        preparedStatement.setString(3, customerID);
+      preparedStatement.setString(3, this.userName);
+      if(newCustomer){
+        preparedStatement.setString(4, this.userName);
+      }else{
+        preparedStatement.setString(4, customerID);
       }
       preparedStatement.execute();
     } catch (SQLException ex) {
@@ -85,16 +89,16 @@ public class ModifyCustomerController {
     String country = countryTextField.getText();
     String query =  
     "INSERT INTO country (country, createDate, createdBy, lastUpdateBy) " +
-    "SELECT ?, CURDATE(), 'admin', 'admin' FROM country " +
+    "SELECT ?, CURDATE(), ?, ? FROM country " +
     "WHERE NOT EXISTS ( " +
     "  SELECT country FROM country WHERE country=? " +
     ") LIMIT 1;";
-    
-    // TODO fix admin everywhere
  
     PreparedStatement preparedStatement = connection.prepareStatement(query);
     preparedStatement.setString(1, country);
-    preparedStatement.setString(2, country);
+    preparedStatement.setString(2, this.userName);
+    preparedStatement.setString(3, this.userName);
+    preparedStatement.setString(4, country);
     preparedStatement.execute();
 
     query = "SELECT countryid FROM country WHERE country=?";
@@ -113,17 +117,17 @@ public class ModifyCustomerController {
     String city = cityTextField.getText();
     String query =  
     "INSERT INTO city (city, countryId, createDate, createdBy, lastUpdateBy) " +
-    "SELECT ?, ?, CURDATE(), 'admin', 'admin' FROM city " +
+    "SELECT ?, ?, CURDATE(), ?, ? FROM city " +
     "WHERE NOT EXISTS ( " +
       "SELECT city FROM city WHERE city=? " +
     ") LIMIT 1;";
-    
-    // TODO fix admin everywhere
  
     PreparedStatement preparedStatement = connection.prepareStatement(query);
     preparedStatement.setString(1, city);
     preparedStatement.setString(2, Integer.toString(countryID));
-    preparedStatement.setString(3, city);
+    preparedStatement.setString(3, this.userName);
+    preparedStatement.setString(4, this.userName);
+    preparedStatement.setString(5, city);
     preparedStatement.execute();
 
     query = "SELECT cityid FROM city WHERE city=?";
@@ -144,18 +148,16 @@ public class ModifyCustomerController {
     if(update){
       query = 
       "UPDATE address " +
-      "SET address=?, address2=?, cityId=?, postalCode=?, phone=?, lastUpdateBy='admin'" +
+      "SET address=?, address2=?, cityId=?, postalCode=?, phone=?, lastUpdateBy=?" +
       "WHERE addressid=?;";
     }else{
       query =  
       "INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdateBy) " +
-      "SELECT ?, ?, ?, ?, ?, CURDATE(), 'admin', 'admin' FROM address " +
+      "SELECT ?, ?, ?, ?, ?, CURDATE(), ?, ? FROM address " +
       "WHERE NOT EXISTS ( " +
         "SELECT address FROM address WHERE address=? " +
       ") LIMIT 1;";
     }
-
-    // TODO fix admin everywhere
  
     PreparedStatement preparedStatement = connection.prepareStatement(query);
     preparedStatement.setString(1, address);
@@ -163,10 +165,12 @@ public class ModifyCustomerController {
     preparedStatement.setString(3, Integer.toString(cityID));
     preparedStatement.setString(4, postalCodeTextField.getText());
     preparedStatement.setString(5, phoneTextField.getText());
+    preparedStatement.setString(6, this.userName);
     if(update){
-      preparedStatement.setString(6, addressID);
+      preparedStatement.setString(7, addressID);
     }else{
-      preparedStatement.setString(6, address);
+      preparedStatement.setString(7, this.userName);
+      preparedStatement.setString(8, address);
     }
     preparedStatement.execute();
 
@@ -266,7 +270,11 @@ public class ModifyCustomerController {
     this.stage = stage;
   }
   
-  public static void showDialog(Stage primaryStage, Connection connection, Customer customer, String title) throws IOException, ClassNotFoundException{
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+  
+  public static void showDialog(Stage primaryStage, Connection connection, Customer customer, String title, String userName) throws IOException, ClassNotFoundException{
     
     // Load the fxml file and create a new stage for the popup dialog.
     FXMLLoader loader = new FXMLLoader();
@@ -285,6 +293,7 @@ public class ModifyCustomerController {
     ModifyCustomerController modifyCustomerController = loader.getController();
     modifyCustomerController.setStage(stage);
     modifyCustomerController.setConnection(connection);
+    modifyCustomerController.setUserName(userName);
     
     if(customer != null){
       modifyCustomerController.setCustomer(customer);
