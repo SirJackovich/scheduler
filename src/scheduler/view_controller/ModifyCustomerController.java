@@ -6,13 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -26,6 +22,7 @@ public class ModifyCustomerController {
   private Stage stage;
   private Connection connection;
   private String customerID;
+  private String addressID;
 
   @FXML
   private TextField nameTextField;
@@ -57,17 +54,23 @@ public class ModifyCustomerController {
     PreparedStatement preparedStatement;
     try {
       if(newCustomer){
+        int countryID = handleCountry();
+        int cityID = handleCity(countryID);
+        handleAddress(cityID, false);
         preparedStatement = connection.prepareStatement(
         "INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdateBy) " +
         "VALUES (?, ?, 1, CURDATE(), 'admin', 'admin')");
       }else{
+        int countryID = handleCountry();
+        int cityID = handleCity(countryID);
+        handleAddress(cityID, true);
         preparedStatement = connection.prepareStatement(
         "UPDATE customer " +
         "SET customerName=?, addressId=? " +
         "WHERE customerid = ?");
       }
       preparedStatement.setString(1, nameTextField.getText());
-      preparedStatement.setString(2, addressIDComboBox.getValue());
+      preparedStatement.setString(2, addressID);
       if(!newCustomer){
         preparedStatement.setString(3, customerID);
       }
@@ -76,6 +79,109 @@ public class ModifyCustomerController {
       ex.printStackTrace();
     }
     stage.close();
+  }
+  
+  private int handleCountry() throws SQLException{
+    String country = countryTextField.getText();
+    String query =  
+    "INSERT INTO country (country, createDate, createdBy, lastUpdateBy) " +
+    "SELECT ?, CURDATE(), 'admin', 'admin' FROM country " +
+    "WHERE NOT EXISTS ( " +
+    "  SELECT country FROM country WHERE country=? " +
+    ") LIMIT 1;";
+    
+    // TODO fix admin everywhere
+ 
+    PreparedStatement preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, country);
+    preparedStatement.setString(2, country);
+    preparedStatement.execute();
+
+    query = "SELECT countryid FROM country WHERE country=?";
+    preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, country);
+    
+    ResultSet resultSet = preparedStatement.executeQuery();
+    int countryID = 0;
+    if (resultSet.next()) {
+      countryID = resultSet.getInt(1);
+    }
+    return countryID;
+  }
+  
+  private int handleCity(int countryID) throws SQLException{
+    String city = cityTextField.getText();
+    String query =  
+    "INSERT INTO city (city, countryId, createDate, createdBy, lastUpdateBy) " +
+    "SELECT ?, ?, CURDATE(), 'admin', 'admin' FROM city " +
+    "WHERE NOT EXISTS ( " +
+      "SELECT city FROM city WHERE city=? " +
+    ") LIMIT 1;";
+    
+    // TODO fix admin everywhere
+ 
+    PreparedStatement preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, city);
+    preparedStatement.setString(2, Integer.toString(countryID));
+    preparedStatement.setString(3, city);
+    preparedStatement.execute();
+
+    query = "SELECT cityid FROM city WHERE city=?";
+    preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, city);
+    
+    ResultSet resultSet = preparedStatement.executeQuery();
+    int cityID = 0;
+    if (resultSet.next()) {
+      cityID = resultSet.getInt(1);
+    }
+    return cityID;
+  }
+  
+  private void handleAddress(int cityID, boolean update) throws SQLException{
+    String address = addressTextField.getText();
+    String query;
+    if(update){
+      query = 
+      "UPDATE address " +
+      "SET address=?, address2=?, cityId=?, postalCode=?, phone=?, lastUpdateBy='admin'" +
+      "WHERE addressid=?;";
+    }else{
+      query =  
+      "INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdateBy) " +
+      "SELECT ?, ?, ?, ?, ?, CURDATE(), 'admin', 'admin' FROM address " +
+      "WHERE NOT EXISTS ( " +
+        "SELECT address FROM address WHERE address=? " +
+      ") LIMIT 1;";
+    }
+
+    // TODO fix admin everywhere
+ 
+    PreparedStatement preparedStatement = connection.prepareStatement(query);
+    preparedStatement.setString(1, address);
+    preparedStatement.setString(2, address2TextField.getText());
+    preparedStatement.setString(3, Integer.toString(cityID));
+    preparedStatement.setString(4, postalCodeTextField.getText());
+    preparedStatement.setString(5, phoneTextField.getText());
+    if(update){
+      preparedStatement.setString(6, addressID);
+    }else{
+      preparedStatement.setString(6, address);
+    }
+    preparedStatement.execute();
+
+    if(!update){
+      query = "SELECT addressid FROM address WHERE address=?";
+      preparedStatement = connection.prepareStatement(query);
+      preparedStatement.setString(1, address);
+
+      ResultSet resultSet = preparedStatement.executeQuery();
+      int id = 0;
+      if (resultSet.next()) {
+        id = resultSet.getInt(1);
+      }
+      addressID = Integer.toString(id);
+    }
   }
 
   @FXML
@@ -94,6 +200,18 @@ public class ModifyCustomerController {
 
     if (nameTextField.getText() == null || nameTextField.getText().length() == 0) {
       errorMessage += "No valid name!\n"; 
+    }
+    
+    if (countryTextField.getText() == null || countryTextField.getText().length() == 0) {
+      errorMessage += "No valid country!\n"; 
+    }
+    
+    if (cityTextField.getText() == null || countryTextField.getText().length() == 0) {
+      errorMessage += "No valid city!\n"; 
+    }
+    
+    if (addressTextField.getText() == null || addressTextField.getText().length() == 0) {
+      errorMessage += "No valid address!\n"; 
     }
     
     if (errorMessage.length() == 0) {
@@ -123,10 +241,24 @@ public class ModifyCustomerController {
   public void setCustomer(Customer customer) {
     if(customer == null){
       this.customerID = null;
+      this.addressID = null;
       nameTextField.setText("");
+      phoneTextField.setText("");
+      addressTextField.setText("");
+      address2TextField.setText("");
+      cityTextField.setText("");
+      countryTextField.setText("");
+      postalCodeTextField.setText("");
     }else{
       this.customerID = Integer.toString(customer.getID());
+      this.addressID = Integer.toString(customer.getAddressID());
       nameTextField.setText(customer.getName());
+      phoneTextField.setText(customer.getPhone());
+      addressTextField.setText(customer.getAddress());
+      address2TextField.setText(customer.getAddress2());
+      cityTextField.setText(customer.getCity());
+      countryTextField.setText(customer.getCountry());
+      postalCodeTextField.setText(customer.getPostalCode());
     }
   }
   
@@ -156,10 +288,10 @@ public class ModifyCustomerController {
     
     if(customer != null){
       modifyCustomerController.setCustomer(customer);
-      modifyCustomerController.fillComboBox(customer);
+      // modifyCustomerController.fillComboBox(customer);
     }else{
       modifyCustomerController.setCustomer(null);
-      modifyCustomerController.fillComboBox(null);
+      // modifyCustomerController.fillComboBox(null);
     }
     
     // open the popup

@@ -21,9 +21,13 @@
          <center>
             <TableView fx:id="tableView" prefHeight="350.0" prefWidth="400.0" BorderPane.alignment="CENTER">
               <columns>
-                <TableColumn fx:id="IDTableColumn" prefWidth="146.0" text="ID" />
-                <TableColumn fx:id="nameTableColumn" prefWidth="254.0" text="Name" />
-                  <TableColumn fx:id="addressTableColumn" prefWidth="171.0" text="Address ID" />
+                <TableColumn fx:id="nameTableColumn" prefWidth="92.0" text="Name" />
+                <TableColumn fx:id="addressTableColumn" prefWidth="106.0" text="Address" />
+                  <TableColumn fx:id="address2TableColumn" prefWidth="84.0" text="Address 2" />
+                  <TableColumn fx:id="cityTableColumn" prefWidth="81.0" text="City" />
+                  <TableColumn fx:id="postalCodeTableColumn" prefWidth="83.0" text="PostalCode" />
+                  <TableColumn fx:id="phoneTableColumn" prefWidth="75.0" text="Phone" />
+                  <TableColumn fx:id="countryTableColumn" prefWidth="75.0" text="Country" />
               </columns>
             </TableView>
          </center>

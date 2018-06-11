@@ -32,13 +32,27 @@ public class CustomerController {
   private TableView<Customer> tableView;
 
   @FXML
-  private TableColumn<Customer, Integer> IDTableColumn;
-
-  @FXML
   private TableColumn<Customer, String> nameTableColumn;
 
   @FXML
-  private TableColumn<Customer, Integer> addressTableColumn;
+  private TableColumn<Customer, String> addressTableColumn;
+
+  @FXML
+  private TableColumn<Customer, String> address2TableColumn;
+
+  @FXML
+  private TableColumn<Customer, String> cityTableColumn;
+
+  @FXML
+  private TableColumn<Customer, String> postalCodeTableColumn;
+
+  @FXML
+  private TableColumn<Customer, String> phoneTableColumn;
+
+  @FXML
+  private TableColumn<Customer, String> countryTableColumn;
+
+
 
   private void deleteCustomer(Customer customer){
      PreparedStatement preparedStatement;
@@ -85,10 +99,13 @@ public class CustomerController {
   private void initialize() throws IOException, ClassNotFoundException{
     // Initialize the customer table
     // use lambda expressions to map the customer properties to the table cells
-    IDTableColumn.setCellValueFactory(cellData -> cellData.getValue().IDProperty().asObject());
     nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-    addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressIDProperty().asObject());
-    
+    addressTableColumn.setCellValueFactory(cellData -> cellData.getValue().addressProperty());
+    address2TableColumn.setCellValueFactory(cellData -> cellData.getValue().address2Property());
+    cityTableColumn.setCellValueFactory(cellData -> cellData.getValue().cityProperty());
+    postalCodeTableColumn.setCellValueFactory(cellData -> cellData.getValue().postalCodeProperty());
+    phoneTableColumn.setCellValueFactory(cellData -> cellData.getValue().phoneProperty());
+    countryTableColumn.setCellValueFactory(cellData -> cellData.getValue().countryProperty());
   }
   
   private void updateCustomers() throws ClassNotFoundException{
@@ -99,8 +116,13 @@ public class CustomerController {
         int customerID = resultSet.getInt("customerid");
         String name = resultSet.getString("customerName");
         int addressID = resultSet.getInt("addressId");
-        
-        Customer customer = new Customer(customerID, name, addressID);
+        String address = resultSet.getString("address");
+        String address2 = resultSet.getString("address2");
+        String city = resultSet.getString("city");
+        String postalCode = resultSet.getString("postalCode");
+        String phone = resultSet.getString("phone");
+        String country = resultSet.getString("country");
+        Customer customer = new Customer(customerID, name, addressID, address, address2, city, postalCode, phone, country);
         customers.add(customer);
       }
       tableView.setItems(customers);
@@ -115,9 +137,11 @@ public class CustomerController {
     try {
       statement = connection.createStatement();
       resultSet = statement.executeQuery(
-        "SELECT customerid, customerName, addressId " + 
-        "FROM customer");
-
+      "SELECT customerid, customerName, customer.addressId, address, address2, postalCode, phone, city, country " +
+      "FROM customer, address, city, country " +
+      "WHERE customer.addressId = address.addressid " +
+      "AND address.cityId = city.cityid " +
+      "AND city.countryId = country.countryid");
     } catch (SQLException ex) {
       ex.printStackTrace();
     }

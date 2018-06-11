@@ -33,13 +33,13 @@
             <Label text="Country" GridPane.rowIndex="5" />
             <Label text="Address 2" GridPane.rowIndex="3" />
             <TextField fx:id="countryTextField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <TextField fx:id="addressTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="address2TextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label text="Address" GridPane.rowIndex="2" />
-            <Label fx:id="phoneTextField" text="Phone" GridPane.rowIndex="1" />
+            <Label text="Phone" GridPane.rowIndex="1" />
             <Label text="City" GridPane.rowIndex="4" />
             <Label text="Postal Code" GridPane.rowIndex="6" />
             <TextField fx:id="addressTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="phoneTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="cityTextField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <TextField fx:id="postalCodeTextField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
          </children>
