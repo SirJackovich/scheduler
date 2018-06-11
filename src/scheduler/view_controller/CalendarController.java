@@ -42,16 +42,22 @@ public class CalendarController {
   private TableView<Appointment> calendarTableView;
 
   @FXML
-  private TableColumn<Appointment, String> timeTableColumn;
+  private TableColumn<Appointment, String> startTableColumn;
 
   @FXML
-  private TableColumn<Appointment, String> nameTableColumn;
+  private TableColumn<Appointment, String> endTableColumn;
+
+  @FXML
+  private TableColumn<Appointment, String> titleTableColumn;
 
   @FXML
   private TableColumn<Appointment, String> typeTableColumn;
 
   @FXML
   private TableColumn<Appointment, String> customerTableColumn;
+
+  @FXML
+  private TableColumn<Appointment, String> consultantTableColumn;
   
   private void deleteAppointment(Appointment appointment){
      PreparedStatement preparedStatement;
@@ -141,10 +147,13 @@ public class CalendarController {
   private void initialize() throws IOException, ClassNotFoundException, ParseException{
     // Initialize the appointment table
     // use lambda expressions to map the appointment properties to the table cells
-    timeTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
-    nameTableColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+    startTableColumn.setCellValueFactory(cellData -> cellData.getValue().startProperty());
+    endTableColumn.setCellValueFactory(cellData -> cellData.getValue().endProperty());
+    titleTableColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
     typeTableColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
     customerTableColumn.setCellValueFactory(cellData -> cellData.getValue().customerNameProperty());
+    consultantTableColumn.setCellValueFactory(cellData -> cellData.getValue().userNameProperty());
+
     
     // Initialize the comboBox
     viewComboBox.getItems().addAll("Month", "Week");

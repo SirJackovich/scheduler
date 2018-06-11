@@ -56,6 +56,12 @@ public class ReportsController {
   @FXML
   private TableColumn tableColumn4;
   
+  @FXML
+  private TableColumn tableColumn5;
+
+  @FXML
+  private TableColumn tableColumn6;
+  
   private void appointmentsByMonth() throws ClassNotFoundException{
     ObservableList<Type> table = FXCollections.observableArrayList();
     ResultSet resultSet = getDataFromDataBase("SELECT type,COUNT(*) as count FROM appointment GROUP BY type");
@@ -63,6 +69,8 @@ public class ReportsController {
     tableColumn2.setText("Count");
     tableColumn3.setText("");
     tableColumn4.setText("");
+    tableColumn5.setText("");
+    tableColumn6.setText("");
     
     tableColumn1.setCellValueFactory(
       new PropertyValueFactory<>("type")
@@ -74,6 +82,12 @@ public class ReportsController {
       new PropertyValueFactory<>("")
     );
     tableColumn4.setCellValueFactory(
+      new PropertyValueFactory<>("")
+    );
+    tableColumn5.setCellValueFactory(
+      new PropertyValueFactory<>("")
+    );
+    tableColumn6.setCellValueFactory(
       new PropertyValueFactory<>("")
     );
    
@@ -100,33 +114,31 @@ public class ReportsController {
   }
     
   private void fillCallendar(boolean consultant) throws ClassNotFoundException, ParseException{
-    tableColumn1.setText("Time");
-    tableColumn2.setText("Name");
-    tableColumn3.setText("Type");
-    if(consultant){
-      tableColumn4.setText("Customer");
-    }else{
-      tableColumn4.setText("Consultant");
-    }
+    tableColumn1.setText("Start");
+    tableColumn2.setText("End");
+    tableColumn3.setText("Title");
+    tableColumn4.setText("Type");
+    tableColumn5.setText("Customer");
+    tableColumn6.setText("Consultant");
     
     tableColumn1.setCellValueFactory(
       new PropertyValueFactory<>("start")
     );
     tableColumn2.setCellValueFactory(
-      new PropertyValueFactory<>("title")
+      new PropertyValueFactory<>("end")
     );
     tableColumn3.setCellValueFactory(
+      new PropertyValueFactory<>("title")
+    );
+    tableColumn4.setCellValueFactory(
       new PropertyValueFactory<>("type")
     );
-    if(consultant){
-      tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("customerName")
-      );
-    }else{
-      tableColumn4.setCellValueFactory(
-        new PropertyValueFactory<>("userName")
-      );
-    }
+    tableColumn5.setCellValueFactory(
+      new PropertyValueFactory<>("customerName")
+    );
+    tableColumn6.setCellValueFactory(
+      new PropertyValueFactory<>("userName")
+    );
     
     ObservableList<Appointment> calendar = FXCollections.observableArrayList();
     String query;
